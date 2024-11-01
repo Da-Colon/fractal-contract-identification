@@ -1,0 +1,10 @@
+{
+  "name": "fractal-module-identification",
+  "scripts": {
+    "start": "vite-node src/index.ts"
+  },
+  "dependencies": {
+    "viem": "^2.21.38",
+    "vite-node": "^2.1.4"
+  }
+}
