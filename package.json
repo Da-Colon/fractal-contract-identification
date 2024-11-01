@@ -1,5 +1,5 @@
 {
-  "name": "fractal-module-identification",
+  "name": "fractal-contract-identification",
   "scripts": {
     "start": "vite-node src/index.ts"
   },
