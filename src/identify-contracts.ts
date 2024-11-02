@@ -1,4 +1,12 @@
-import { createPublicClient, http, ContractFunctionExecutionError, Abi, Address } from "viem";
+import {
+  createPublicClient,
+  http,
+  ContractFunctionExecutionError,
+  Abi,
+  Address,
+  getContract,
+  PublicClient,
+} from "viem";
 import { sepolia } from "viem/chains";
 import { ClaimErc20Abi } from "./abis/ClaimErc20Abi";
 import { FreezeGuardAzoriusAbi } from "./abis/FreezeGuardAzoriusAbi";
@@ -12,6 +20,68 @@ import { ModuleAzoriusAbi } from "./abis/ModuleAzoriusAbi";
 import { ModuleFractalAbi } from "./abis/ModuleFractalAbi";
 import { VotesErc20Abi } from "./abis/VotesErc20Abi";
 import { VotesErc20WrapperAbi } from "./abis/VotesErc20WrapperAbi";
+import { ZodiacModuleProxyFactoryAbi } from "./abis/ZodiacModuleProxyFactoryAbi";
+
+const zodiacModuleProxyFactoryAddress = "0xE93e4B198097C4CB3A6de594c90031CDaC0B88f3";
+const zodiacModuleProxyFactoryDeploymentBlock = 4916639n;
+const zodiacModuleProxyFactoryAddress2 = "0x000000000000addb49795b0f9ba5bc298cdda236";
+const ZodiacModuleProxyFactoryDeploymentBlock2 = 3059000n;
+
+type AddressTest = {
+  address: Address;
+  expectedType: keyof ContractType;
+};
+
+const masterCopies: AddressTest[] = [
+  {
+    address: "0x0e18C56f0B4153065bD3a3127c61515819e8E4a2",
+    expectedType: "isClaimErc20",
+  },
+  {
+    address: "0x43Be57fbe7f255363BE5b7724EbA5513300a6D75",
+    expectedType: "isFreezeGuardAzorius",
+  },
+  {
+    address: "0x4B3c155C9bB21F482E894B4321Ac4d2DCF4A6746",
+    expectedType: "isFreezeGuardMultisig",
+  },
+  {
+    address: "0x7c5f4c0c171953f43a1F81C5b79B3450bC7AA7a4",
+    expectedType: "isFreezeVotingErc20",
+  },
+  {
+    address: "0xC49B7DA5098f6DeAD7Dffe3B5a49b0aA6bE854a9",
+    expectedType: "isFreezeVotingErc721",
+  },
+  {
+    address: "0x10Aff1BEB279C6b0077eee0DB2f0Cc9Cedd4c507",
+    expectedType: "isFreezeVotingMultisig",
+  },
+  {
+    address: "0xe04BC1f515Af4276d8d3907aBe359DC03b2f141b",
+    expectedType: "isLinearVotingErc20",
+  },
+  {
+    address: "0xE3B744725631326162777721Ed37cF32A0928714",
+    expectedType: "isLinearVotingErc721",
+  },
+  {
+    address: "0x8D4F390dae8c1F0F3b42199c6c3859aD6C9b3B3D",
+    expectedType: "isModuleAzorius",
+  },
+  {
+    address: "0x1B26345a4A41d9f588E1B161b6e8f21D27547184",
+    expectedType: "isModuleFractal",
+  },
+  {
+    address: "0x51c852BdF6ed00bAca4225EE940b426a56853ec9",
+    expectedType: "isVotesErc20",
+  },
+  {
+    address: "0xc2427b5D77Bd319511672095E9a5A845AA80f979",
+    expectedType: "isVotesErc20Wrapper",
+  },
+];
 
 type ContractType = {
   isClaimErc20: boolean;
@@ -50,7 +120,6 @@ type ContractFunctionTest = {
   resultKey: keyof ContractType;
 };
 
-// Helper function to combine ABIs
 function combineAbis(...abis: Abi[]): Abi {
   return abis.flat();
 }
@@ -202,12 +271,10 @@ const contractTests: ContractFunctionTest[] = [
   },
 ];
 
-export async function identifyContract(address: Address): Promise<ContractType> {
-  const client = createPublicClient({
-    chain: sepolia,
-    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`),
-  });
-
+export async function identifyContract(
+  client: PublicClient,
+  address: Address
+): Promise<ContractType> {
   const result = { ...defaultContractType };
 
   const allCalls = contractTests.flatMap((test) => [
@@ -251,92 +318,183 @@ export async function identifyContract(address: Address): Promise<ContractType> 
   return result;
 }
 
-type AddressTest = {
-  address: Address;
-  expectedType: keyof ContractType;
+async function getInstancesForMasterCopy(
+  client: PublicClient,
+  masterCopyAddress: Address
+): Promise<Address[]> {
+  // Get instances from first factory
+  const logs1 = await client.getContractEvents({
+    address: zodiacModuleProxyFactoryAddress,
+    abi: ZodiacModuleProxyFactoryAbi,
+    eventName: "ModuleProxyCreation",
+    args: {
+      masterCopy: masterCopyAddress,
+    },
+    fromBlock: zodiacModuleProxyFactoryDeploymentBlock,
+  });
+
+  // Get instances from second factory
+  const logs2 = await client.getContractEvents({
+    address: zodiacModuleProxyFactoryAddress2,
+    abi: ZodiacModuleProxyFactoryAbi,
+    eventName: "ModuleProxyCreation",
+    args: {
+      masterCopy: masterCopyAddress,
+    },
+    fromBlock: ZodiacModuleProxyFactoryDeploymentBlock2,
+  });
+
+  // Combine and sort all logs by block number (most recent first)
+  const allLogs = [...logs1, ...logs2].sort(
+    (a, b) => Number(b.blockNumber) - Number(a.blockNumber)
+  );
+
+  // Extract proxy addresses
+  return allLogs.map((log) => log.args.proxy!);
+}
+
+type TestStats = {
+  totalTests: number;
+  exactMatches: number;
+  noMatches: number;
+  multipleMatches: number;
 };
 
-const testAddresses: AddressTest[] = [
-  {
-    address: "0x0e20C41E62AFB943d484A96B8cfB536f5c6628Ba",
-    expectedType: "isClaimErc20",
-  },
-  {
-    address: "0x7Fd5ddAc1bE02848D646a4c366379b611EBf3a44",
-    expectedType: "isFreezeGuardAzorius",
-  },
-  {
-    address: "0x8017FEc7a6158636B5626CF85f632472EbC7200d",
-    expectedType: "isFreezeGuardMultisig",
-  },
-  {
-    address: "0xb9D151Bf68BEb6fa126eb98f3ea53b2843960292",
-    expectedType: "isFreezeVotingErc20",
-  },
-  {
-    address: "0xe0f5cE9305B648Ec344807d9bFeebCF6D90a9c3B",
-    expectedType: "isFreezeVotingErc721",
-  },
-  {
-    address: "0x2d2D4BE19c89083B78e5cf3B831208CD1c1A42c3",
-    expectedType: "isFreezeVotingMultisig",
-  },
-  {
-    address: "0x18A298215Ad69e95B6031805F50E929edeb8F317",
-    expectedType: "isLinearVotingErc20",
-  },
-  {
-    address: "0xcCdcdE549fa2De58953c4f24388c5263206154FD",
-    expectedType: "isLinearVotingErc721",
-  },
-  {
-    address: "0x8ec776a08eCcEAD1Ed62dF0e6012cd3Ab4CF3F5C",
-    expectedType: "isModuleAzorius",
-  },
-  {
-    address: "0x7E1b825E1a47fcce2E6F0faa45fb52cF65531d7D",
-    expectedType: "isModuleFractal",
-  },
-  {
-    address: "0x75Ca8f34d6FC0Ac4Ff180D61B9ea71c55044B795",
-    expectedType: "isVotesErc20",
-  },
-  {
-    address: "0xf019E124745B4Eba96E11AE962D264Df365137D3",
-    expectedType: "isVotesErc20Wrapper",
-  },
-];
+type StatsMap = {
+  [K in keyof ContractType]: TestStats;
+};
+
+function initializeStats(): StatsMap {
+  return Object.keys(defaultContractType).reduce((acc, key) => {
+    acc[key] = {
+      totalTests: 0,
+      exactMatches: 0,
+      noMatches: 0,
+      multipleMatches: 0,
+    };
+    return acc;
+  }, {} as StatsMap);
+}
+
+function logTestResults(address: Address, expectedType: keyof ContractType, result: ContractType) {
+  const trueCount = Object.values(result).filter((v) => v).length;
+  const matchedTypes = Object.entries(result)
+    .filter(([_, value]) => value)
+    .map(([key]) => key);
+  const matchedExpected = result[expectedType];
+
+  console.log(
+    `${address}: expected=${expectedType}, matches=${trueCount} (${
+      matchedTypes.join(", ") || "none"
+    }) ${matchedExpected ? "✅" : "❌"}${!matchedExpected || trueCount !== 1 ? " ⚠️" : ""}`
+  );
+}
+
+function updateStats(stats: StatsMap, expectedType: keyof ContractType, result: ContractType) {
+  const trueCount = Object.values(result).filter((v) => v).length;
+  const matchedExpected = result[expectedType];
+
+  stats[expectedType].totalTests++;
+
+  if (trueCount === 0) {
+    stats[expectedType].noMatches++;
+  } else if (trueCount === 1 && matchedExpected) {
+    stats[expectedType].exactMatches++;
+  } else {
+    stats[expectedType].multipleMatches++;
+  }
+}
 
 const main = async () => {
-  console.log("Starting contract identification tests...\n");
+  console.log(`
+=================================================================
+Contract Type Identification Test Suite
+=================================================================
 
-  for (const test of testAddresses) {
-    console.log(`Testing address: ${test.address}`);
-    console.log(`Expected type: ${test.expectedType}`);
+This test suite uses known contract instances to validate our
+contract type detection logic. 
 
-    const contractType = await identifyContract(test.address);
+We can gather reliable test data because these contracts are created
+through Zodiac Module Proxy Factories. Each proxy instance points to
+a specific "master copy" implementation, so we know with certainty
+what type each proxy instance should be.
 
-    // Count how many types are true
-    const trueCount = Object.values(contractType).filter((v) => v).length;
+We'll gather instances from two factory contracts:
+1. ${zodiacModuleProxyFactoryAddress} (Decent's deployment, which we started with)
+2. ${zodiacModuleProxyFactoryAddress2} (Zodiac's deployment, which we switched to)
 
-    // Get the matched types
-    const matchedTypes = Object.entries(contractType)
-      .filter(([_, value]) => value)
-      .map(([key]) => key);
+=================================================================\n`);
 
-    console.log(`Number of matching types: ${trueCount}`);
-    console.log(`Matched types: ${matchedTypes.join(", ") || "none"}`);
+  const client = createPublicClient({
+    chain: sepolia,
+    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`),
+  });
 
-    // Check if the expected type was matched
-    const matchedExpected = contractType[test.expectedType];
-    console.log(`Matched expected type: ${matchedExpected ? "✅" : "❌"}`);
+  console.log("Phase 1: Gathering Test Data\n");
+  console.log("Querying factory contracts for instances of each contract type...\n");
 
-    if (!matchedExpected || trueCount !== 1) {
-      console.log("⚠️ WARNING: Fingerprint may need adjustment!");
+  const allInstances = new Map<keyof ContractType, Address[]>();
+  let totalInstances = 0;
+
+  for (const masterCopy of masterCopies) {
+    const instances = await getInstancesForMasterCopy(client, masterCopy.address);
+    allInstances.set(masterCopy.expectedType, instances);
+    totalInstances += instances.length;
+
+    console.log(`${masterCopy.expectedType}: ${instances.length} instances found`);
+  }
+
+  console.log(`\nTotal test instances found: ${totalInstances}`);
+  console.log("\n=================================================================\n");
+  console.log("Phase 2: Running Contract Type Detection Tests\n");
+
+  // Now proceed with testing
+  const stats = initializeStats();
+
+  for (const [contractType, instances] of allInstances) {
+    console.log(`Testing ${contractType} instances:\n`);
+    console.log(`Found ${instances.length} instances to test\n`);
+
+    if (instances.length > 0) {
+      for (const instance of instances) {
+        const result = await identifyContract(client, instance);
+        logTestResults(instance, contractType, result);
+        updateStats(stats, contractType, result);
+      }
+    } else {
+      console.log("No instances found to test");
     }
 
-    console.log("\n-------------------\n");
+    console.log("\n===================\n");
   }
+
+  // Print final statistics
+  console.log("\nFinal Statistics:");
+  console.log("================");
+  Object.entries(stats).forEach(([contractType, stat]) => {
+    if (stat.totalTests > 0) {
+      const allPassed = stat.exactMatches === stat.totalTests;
+      console.log(`\n${contractType}: ${allPassed ? "✅" : "❌"}`);
+      console.log(`  Total tests: ${stat.totalTests}`);
+      console.log(
+        `  Exact matches: ${stat.exactMatches} (${(
+          (stat.exactMatches / stat.totalTests) *
+          100
+        ).toFixed(1)}%)`
+      );
+      console.log(
+        `  No matches: ${stat.noMatches} (${((stat.noMatches / stat.totalTests) * 100).toFixed(
+          1
+        )}%)`
+      );
+      console.log(
+        `  Multiple matches: ${stat.multipleMatches} (${(
+          (stat.multipleMatches / stat.totalTests) *
+          100
+        ).toFixed(1)}%)`
+      );
+    }
+  });
 };
 
 main();
