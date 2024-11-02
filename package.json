@@ -1,6 +1,8 @@
 {
   "name": "fractal-contract-identification",
-  "scripts": {},
+  "scripts": {
+    "identifyContracts": "vite-node src/identify-contracts.ts"
+  },
   "dependencies": {
     "viem": "^2.21.38",
     "vite-node": "^2.1.4"
