@@ -1,8 +1,6 @@
 {
   "name": "fractal-contract-identification",
-  "scripts": {
-    "findFractalModuleInstances": "vite-node src/find-fractal-module-instances.ts"
-  },
+  "scripts": {},
   "dependencies": {
     "viem": "^2.21.38",
     "vite-node": "^2.1.4"
