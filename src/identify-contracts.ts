@@ -1,12 +1,4 @@
-import {
-  createPublicClient,
-  http,
-  ContractFunctionExecutionError,
-  Abi,
-  Address,
-  getContract,
-  PublicClient,
-} from "viem";
+import { createPublicClient, http, Abi, Address, PublicClient } from "viem";
 import { sepolia } from "viem/chains";
 import { ClaimErc20Abi } from "./abis/ClaimErc20Abi";
 import { FreezeGuardAzoriusAbi } from "./abis/FreezeGuardAzoriusAbi";
@@ -252,21 +244,13 @@ const contractTests: ContractFunctionTest[] = [
   },
   {
     abi: combineAbis(VotesErc20Abi, VotesErc20WrapperAbi),
-    functionNames: ["DOMAIN_SEPARATOR", "decimals", "name", "owner", "symbol", "totalSupply"],
+    functionNames: ["decimals", "name", "owner", "symbol", "totalSupply"],
     revertFunctionNames: ["underlying"],
     resultKey: "isVotesErc20",
   },
   {
     abi: VotesErc20WrapperAbi,
-    functionNames: [
-      "DOMAIN_SEPARATOR",
-      "decimals",
-      "name",
-      "owner",
-      "symbol",
-      "totalSupply",
-      "underlying",
-    ],
+    functionNames: ["decimals", "name", "owner", "symbol", "totalSupply", "underlying"],
     resultKey: "isVotesErc20Wrapper",
   },
 ];
