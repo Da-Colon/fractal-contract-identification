@@ -1,5 +1,5 @@
-import { createPublicClient, http, Abi, Address, PublicClient } from "viem";
-import { sepolia } from "viem/chains";
+import { createPublicClient, http, Abi, Address, PublicClient, Chain } from "viem";
+import { sepolia, mainnet, polygon, optimism, base } from "viem/chains";
 import { ClaimErc20Abi } from "./abis/ClaimErc20Abi";
 import { FreezeGuardAzoriusAbi } from "./abis/FreezeGuardAzoriusAbi";
 import { FreezeGuardMultisigAbi } from "./abis/FreezeGuardMultisigAbi";
@@ -13,11 +13,6 @@ import { ModuleFractalAbi } from "./abis/ModuleFractalAbi";
 import { VotesErc20Abi } from "./abis/VotesErc20Abi";
 import { VotesErc20WrapperAbi } from "./abis/VotesErc20WrapperAbi";
 import { ZodiacModuleProxyFactoryAbi } from "./abis/ZodiacModuleProxyFactoryAbi";
-
-const zodiacModuleProxyFactoryAddress = "0xE93e4B198097C4CB3A6de594c90031CDaC0B88f3";
-const zodiacModuleProxyFactoryDeploymentBlock = 4916639n;
-const zodiacModuleProxyFactoryAddress2 = "0x000000000000addb49795b0f9ba5bc298cdda236";
-const ZodiacModuleProxyFactoryDeploymentBlock2 = 3059000n;
 
 type AddressTest = {
   address: Address;
@@ -302,39 +297,365 @@ export async function identifyContract(
   return result;
 }
 
+type NetworkConfig = {
+  chain: Chain;
+  alchemyUrl: string;
+  factories: {
+    address: Address;
+    deploymentBlock: bigint;
+  }[];
+  masterCopies: {
+    address: Address;
+    expectedType: keyof ContractType;
+  }[];
+};
+
+const networks: NetworkConfig[] = [
+  {
+    chain: base,
+    alchemyUrl: "https://base-mainnet.g.alchemy.com/v2",
+    factories: [
+      {
+        address: "0x31Bf73048056fe947B827C0Fe159ACcB5Ae30237",
+        deploymentBlock: 12996642n,
+      },
+      {
+        address: "0x000000000000addb49795b0f9ba5bc298cdda236",
+        deploymentBlock: 7414414n,
+      },
+    ],
+    masterCopies: [
+      {
+        address: "0xc3A952B79FdEE28ee6c598ed1411e99d0BBe4D94",
+        expectedType: "isClaimErc20",
+      },
+      {
+        address: "0xF45EAc866BAD509B0CD233869b61be8b0BC6dBd8",
+        expectedType: "isFreezeGuardAzorius",
+      },
+      {
+        address: "0xcd6c149b3C0FE7284005869fa15080e85887c8F1",
+        expectedType: "isFreezeGuardMultisig",
+      },
+      {
+        address: "0xB1011541a6c195540506A0272E4Bb2f53797b477",
+        expectedType: "isFreezeVotingErc20",
+      },
+      {
+        address: "0x8F992966AAFbf311A8f2D33b8531476C04af0447",
+        expectedType: "isFreezeVotingErc721",
+      },
+      {
+        address: "0xFe376AAD5bB1c3Ce27fb27Ece130F7B0ba8D9642",
+        expectedType: "isFreezeVotingMultisig",
+      },
+      {
+        address: "0xdA92DE0BF973De947d0CcEE739E89bA64697e47F",
+        expectedType: "isLinearVotingErc20",
+      },
+      {
+        address: "0x6198B4a8E53108F06B768804A16152471EDa471b",
+        expectedType: "isLinearVotingErc721",
+      },
+      {
+        address: "0xD16368a8b709cBAfd47c480607a843144Bcd27Dc",
+        expectedType: "isModuleAzorius",
+      },
+      {
+        address: "0x87326A981fc56823e26599Ff4D0A4eceAFfF3be0",
+        expectedType: "isModuleFractal",
+      },
+      {
+        address: "0x7bE7B12DA74d48E541131DB1626Ee651A2105c45",
+        expectedType: "isVotesErc20",
+      },
+      {
+        address: "0x2b67F79f927Be670d44D56338A914BB6d17548C7",
+        expectedType: "isVotesErc20Wrapper",
+      },
+    ],
+  },
+  {
+    chain: optimism,
+    alchemyUrl: "https://opt-mainnet.g.alchemy.com/v2",
+    factories: [
+      {
+        address: "0x31Bf73048056fe947B827C0Fe159ACcB5Ae30237",
+        deploymentBlock: 118640417n,
+      },
+      {
+        address: "0x000000000000addb49795b0f9ba5bc298cdda236",
+        deploymentBlock: 46817372n,
+      },
+    ],
+    masterCopies: [
+      {
+        address: "0xc3A952B79FdEE28ee6c598ed1411e99d0BBe4D94",
+        expectedType: "isClaimErc20",
+      },
+      {
+        address: "0xF45EAc866BAD509B0CD233869b61be8b0BC6dBd8",
+        expectedType: "isFreezeGuardAzorius",
+      },
+      {
+        address: "0xcd6c149b3C0FE7284005869fa15080e85887c8F1",
+        expectedType: "isFreezeGuardMultisig",
+      },
+      {
+        address: "0xB1011541a6c195540506A0272E4Bb2f53797b477",
+        expectedType: "isFreezeVotingErc20",
+      },
+      {
+        address: "0x8F992966AAFbf311A8f2D33b8531476C04af0447",
+        expectedType: "isFreezeVotingErc721",
+      },
+      {
+        address: "0xFe376AAD5bB1c3Ce27fb27Ece130F7B0ba8D9642",
+        expectedType: "isFreezeVotingMultisig",
+      },
+      {
+        address: "0xdA92DE0BF973De947d0CcEE739E89bA64697e47F",
+        expectedType: "isLinearVotingErc20",
+      },
+      {
+        address: "0x6198B4a8E53108F06B768804A16152471EDa471b",
+        expectedType: "isLinearVotingErc721",
+      },
+      {
+        address: "0xD16368a8b709cBAfd47c480607a843144Bcd27Dc",
+        expectedType: "isModuleAzorius",
+      },
+      {
+        address: "0x87326A981fc56823e26599Ff4D0A4eceAFfF3be0",
+        expectedType: "isModuleFractal",
+      },
+      {
+        address: "0x7bE7B12DA74d48E541131DB1626Ee651A2105c45",
+        expectedType: "isVotesErc20",
+      },
+      {
+        address: "0x2b67F79f927Be670d44D56338A914BB6d17548C7",
+        expectedType: "isVotesErc20Wrapper",
+      },
+    ],
+  },
+  {
+    chain: polygon,
+    alchemyUrl: "https://polygon-mainnet.g.alchemy.com/v2",
+    factories: [
+      {
+        address: "0x537D9E0d8F66C1eEe391C77f5D8a39d00444428c",
+        deploymentBlock: 43952877n,
+      },
+      {
+        address: "0x000000000000addb49795b0f9ba5bc298cdda236",
+        deploymentBlock: 36581177n,
+      },
+    ],
+    masterCopies: [
+      {
+        address: "0x8B84158Fc3ab787C2Ab23703dD341a8a0211cEFf",
+        expectedType: "isClaimErc20",
+      },
+      {
+        address: "0x090dFe64Bc0A2742605b3Eb8064EF8b199f4C6Ae",
+        expectedType: "isFreezeGuardAzorius",
+      },
+      {
+        address: "0xd5c1EdE7dcE48Aa8b16b8a3390b1d8596847C15a",
+        expectedType: "isFreezeGuardMultisig",
+      },
+      {
+        address: "0x5026f2A188ef4afd931722Cf79cF272423aBAEb3",
+        expectedType: "isFreezeVotingErc20",
+      },
+      {
+        address: "0xaa2361554dCcAd8568798BF5C5A4282D6a7382be",
+        expectedType: "isFreezeVotingErc721",
+      },
+      {
+        address: "0xc90bC2F41EC8155F469581A2EC25705fcBCd9beF",
+        expectedType: "isFreezeVotingMultisig",
+      },
+      {
+        address: "0x99c55527cE2D3fA6d5D0CB12CD0b8e4d04E0C0A6",
+        expectedType: "isLinearVotingErc20",
+      },
+      {
+        address: "0x05DdAbED004C00A2874F68F1e81a8034c4D546FA",
+        expectedType: "isLinearVotingErc721",
+      },
+      {
+        address: "0x0C8f5b3986bC2292c7d6B541a0B0aD0637AE3347",
+        expectedType: "isModuleAzorius",
+      },
+      {
+        address: "0x13dB2c731DdC76c14E7e4ffEd879C8AacD7eE3b5",
+        expectedType: "isModuleFractal",
+      },
+      {
+        address: "0x83C89b1D6282526aA171Ad79CCCa2261FaC5823F",
+        expectedType: "isVotesErc20",
+      },
+      {
+        address: "0x19ed1990ffA463bA376b48a1BF65CE978E9aFe26",
+        expectedType: "isVotesErc20Wrapper",
+      },
+    ],
+  },
+  {
+    chain: mainnet,
+    alchemyUrl: "https://eth-mainnet.g.alchemy.com/v2",
+    factories: [
+      {
+        address: "0x31Bf73048056fe947B827C0Fe159ACcB5Ae30237",
+        deploymentBlock: 17389310n,
+      },
+      {
+        address: "0x000000000000addb49795b0f9ba5bc298cdda236",
+        deploymentBlock: 16140611n,
+      },
+    ],
+    masterCopies: [
+      {
+        address: "0xc3A952B79FdEE28ee6c598ed1411e99d0BBe4D94",
+        expectedType: "isClaimErc20",
+      },
+      {
+        address: "0xF45EAc866BAD509B0CD233869b61be8b0BC6dBd8",
+        expectedType: "isFreezeGuardAzorius",
+      },
+      {
+        address: "0xcd6c149b3C0FE7284005869fa15080e85887c8F1",
+        expectedType: "isFreezeGuardMultisig",
+      },
+      {
+        address: "0xB1011541a6c195540506A0272E4Bb2f53797b477",
+        expectedType: "isFreezeVotingErc20",
+      },
+      {
+        address: "0xd71e2bdC28BFa907652Cfb8BeAfdF59822B71B1B",
+        expectedType: "isFreezeVotingErc721",
+      },
+      {
+        address: "0xFe376AAD5bB1c3Ce27fb27Ece130F7B0ba8D9642",
+        expectedType: "isFreezeVotingMultisig",
+      },
+      {
+        address: "0xdA92DE0BF973De947d0CcEE739E89bA64697e47F",
+        expectedType: "isLinearVotingErc20",
+      },
+      {
+        address: "0x75411F04c58C84daBDdEADE7cF6E1c1F40d4B611",
+        expectedType: "isLinearVotingErc721",
+      },
+      {
+        address: "0xD16368a8b709cBAfd47c480607a843144Bcd27Dc",
+        expectedType: "isModuleAzorius",
+      },
+      {
+        address: "0x87326A981fc56823e26599Ff4D0A4eceAFfF3be0",
+        expectedType: "isModuleFractal",
+      },
+      {
+        address: "0x7bE7B12DA74d48E541131DB1626Ee651A2105c45",
+        expectedType: "isVotesErc20",
+      },
+      {
+        address: "0x2b67F79f927Be670d44D56338A914BB6d17548C7",
+        expectedType: "isVotesErc20Wrapper",
+      },
+    ],
+  },
+  {
+    chain: sepolia,
+    alchemyUrl: "https://eth-sepolia.g.alchemy.com/v2",
+    factories: [
+      {
+        address: "0xE93e4B198097C4CB3A6de594c90031CDaC0B88f3",
+        deploymentBlock: 4916639n,
+      },
+      {
+        address: "0x000000000000addb49795b0f9ba5bc298cdda236",
+        deploymentBlock: 3059000n,
+      },
+    ],
+    masterCopies: [
+      {
+        address: "0x0e18C56f0B4153065bD3a3127c61515819e8E4a2",
+        expectedType: "isClaimErc20",
+      },
+      {
+        address: "0x43Be57fbe7f255363BE5b7724EbA5513300a6D75",
+        expectedType: "isFreezeGuardAzorius",
+      },
+      {
+        address: "0x4B3c155C9bB21F482E894B4321Ac4d2DCF4A6746",
+        expectedType: "isFreezeGuardMultisig",
+      },
+      {
+        address: "0x7c5f4c0c171953f43a1F81C5b79B3450bC7AA7a4",
+        expectedType: "isFreezeVotingErc20",
+      },
+      {
+        address: "0xC49B7DA5098f6DeAD7Dffe3B5a49b0aA6bE854a9",
+        expectedType: "isFreezeVotingErc721",
+      },
+      {
+        address: "0x10Aff1BEB279C6b0077eee0DB2f0Cc9Cedd4c507",
+        expectedType: "isFreezeVotingMultisig",
+      },
+      {
+        address: "0xe04BC1f515Af4276d8d3907aBe359DC03b2f141b",
+        expectedType: "isLinearVotingErc20",
+      },
+      {
+        address: "0xE3B744725631326162777721Ed37cF32A0928714",
+        expectedType: "isLinearVotingErc721",
+      },
+      {
+        address: "0x8D4F390dae8c1F0F3b42199c6c3859aD6C9b3B3D",
+        expectedType: "isModuleAzorius",
+      },
+      {
+        address: "0x1B26345a4A41d9f588E1B161b6e8f21D27547184",
+        expectedType: "isModuleFractal",
+      },
+      {
+        address: "0x51c852BdF6ed00bAca4225EE940b426a56853ec9",
+        expectedType: "isVotesErc20",
+      },
+      {
+        address: "0xc2427b5D77Bd319511672095E9a5A845AA80f979",
+        expectedType: "isVotesErc20Wrapper",
+      },
+    ],
+  },
+];
+
 async function getInstancesForMasterCopy(
   client: PublicClient,
-  masterCopyAddress: Address
+  masterCopyAddress: Address,
+  factories: NetworkConfig["factories"]
 ): Promise<Address[]> {
-  // Get instances from first factory
-  const logs1 = await client.getContractEvents({
-    address: zodiacModuleProxyFactoryAddress,
-    abi: ZodiacModuleProxyFactoryAbi,
-    eventName: "ModuleProxyCreation",
-    args: {
-      masterCopy: masterCopyAddress,
-    },
-    fromBlock: zodiacModuleProxyFactoryDeploymentBlock,
-  });
+  const allLogs: any[] = [];
 
-  // Get instances from second factory
-  const logs2 = await client.getContractEvents({
-    address: zodiacModuleProxyFactoryAddress2,
-    abi: ZodiacModuleProxyFactoryAbi,
-    eventName: "ModuleProxyCreation",
-    args: {
-      masterCopy: masterCopyAddress,
-    },
-    fromBlock: ZodiacModuleProxyFactoryDeploymentBlock2,
-  });
+  for (const factory of factories) {
+    const logs = await client.getContractEvents({
+      address: factory.address,
+      abi: ZodiacModuleProxyFactoryAbi,
+      eventName: "ModuleProxyCreation",
+      args: {
+        masterCopy: masterCopyAddress,
+      },
+      fromBlock: factory.deploymentBlock,
+    });
+    allLogs.push(...logs);
+  }
 
-  // Combine and sort all logs by block number (most recent first)
-  const allLogs = [...logs1, ...logs2].sort(
-    (a, b) => Number(b.blockNumber) - Number(a.blockNumber)
-  );
-
-  // Extract proxy addresses
-  return allLogs.map((log) => log.args.proxy!);
+  return allLogs
+    .sort((a, b) => Number(b.blockNumber) - Number(a.blockNumber))
+    .map((log) => log.args.proxy as Address);
 }
 
 type TestStats = {
@@ -389,10 +710,18 @@ function updateStats(stats: StatsMap, expectedType: keyof ContractType, result: 
   }
 }
 
+type NetworkStats = {
+  networkName: string;
+  stats: StatsMap;
+};
+
 const main = async () => {
-  console.log(`
+  const allNetworkStats: NetworkStats[] = [];
+
+  for (const network of networks) {
+    console.log(`
 =================================================================
-Contract Type Identification Test Suite
+Contract Type Identification Test Suite - ${network.chain.name}
 =================================================================
 
 This test suite uses known contract instances to validate our
@@ -403,82 +732,103 @@ through Zodiac Module Proxy Factories. Each proxy instance points to
 a specific "master copy" implementation, so we know with certainty
 what type each proxy instance should be.
 
-We'll gather instances from two factory contracts:
-1. ${zodiacModuleProxyFactoryAddress} (Decent's deployment, which we started with)
-2. ${zodiacModuleProxyFactoryAddress2} (Zodiac's deployment, which we switched to)
-
+We'll gather instances from ${network.factories.length} factory contract(s):
+${network.factories
+  .map((f, i) => `${i + 1}. ${f.address} (from block ${f.deploymentBlock})`)
+  .join("\n")}
 =================================================================\n`);
 
-  const client = createPublicClient({
-    chain: sepolia,
-    transport: http(`https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`),
-  });
+    const client = createPublicClient({
+      chain: network.chain,
+      transport: http(`${network.alchemyUrl}/${process.env.ALCHEMY_API_KEY}`),
+    });
 
-  console.log("Phase 1: Gathering Test Data\n");
-  console.log("Querying factory contracts for instances of each contract type...\n");
+    console.log("Phase 1: Gathering Test Data\n");
+    console.log("Querying factory contracts for instances of each contract type...\n");
 
-  const allInstances = new Map<keyof ContractType, Address[]>();
-  let totalInstances = 0;
+    const allInstances = new Map<keyof ContractType, Address[]>();
+    let totalInstances = 0;
 
-  for (const masterCopy of masterCopies) {
-    const instances = await getInstancesForMasterCopy(client, masterCopy.address);
-    allInstances.set(masterCopy.expectedType, instances);
-    totalInstances += instances.length;
+    for (const masterCopy of network.masterCopies) {
+      const instances = await getInstancesForMasterCopy(
+        client,
+        masterCopy.address,
+        network.factories
+      );
+      allInstances.set(masterCopy.expectedType, instances);
+      totalInstances += instances.length;
 
-    console.log(`${masterCopy.expectedType}: ${instances.length} instances found`);
-  }
+      console.log(`${masterCopy.expectedType}: ${instances.length} instances found`);
+    }
 
-  console.log(`\nTotal test instances found: ${totalInstances}`);
-  console.log("\n=================================================================\n");
-  console.log("Phase 2: Running Contract Type Detection Tests\n");
+    console.log(`\nTotal test instances found: ${totalInstances}`);
+    console.log("\n=================================================================\n");
 
-  // Now proceed with testing
-  const stats = initializeStats();
+    if (totalInstances === 0) {
+      console.log(`No instances found on ${network.chain.name}, skipping tests.\n`);
+      continue;
+    }
 
-  for (const [contractType, instances] of allInstances) {
-    console.log(`Testing ${contractType} instances:\n`);
-    console.log(`Found ${instances.length} instances to test\n`);
+    console.log("Phase 2: Running Contract Type Detection Tests\n");
 
-    if (instances.length > 0) {
-      for (const instance of instances) {
-        const result = await identifyContract(client, instance);
-        logTestResults(instance, contractType, result);
-        updateStats(stats, contractType, result);
+    const stats = initializeStats();
+
+    for (const [contractType, instances] of allInstances) {
+      console.log(`\nTesting ${contractType} instances:`);
+      console.log(`Found ${instances.length} instances to test\n`);
+
+      if (instances.length > 0) {
+        for (const instance of instances) {
+          const result = await identifyContract(client, instance);
+          logTestResults(instance, contractType, result);
+          updateStats(stats, contractType, result);
+        }
       }
-    } else {
-      console.log("No instances found to test");
+
+      console.log("\n===================\n");
     }
 
-    console.log("\n===================\n");
+    // Save the stats for this network
+    allNetworkStats.push({
+      networkName: network.chain.name,
+      stats,
+    });
   }
 
-  // Print final statistics
-  console.log("\nFinal Statistics:");
-  console.log("================");
-  Object.entries(stats).forEach(([contractType, stat]) => {
-    if (stat.totalTests > 0) {
-      const allPassed = stat.exactMatches === stat.totalTests;
-      console.log(`\n${contractType}: ${allPassed ? "✅" : "❌"}`);
-      console.log(`  Total tests: ${stat.totalTests}`);
-      console.log(
-        `  Exact matches: ${stat.exactMatches} (${(
-          (stat.exactMatches / stat.totalTests) *
-          100
-        ).toFixed(1)}%)`
-      );
-      console.log(
-        `  No matches: ${stat.noMatches} (${((stat.noMatches / stat.totalTests) * 100).toFixed(
-          1
-        )}%)`
-      );
-      console.log(
-        `  Multiple matches: ${stat.multipleMatches} (${(
-          (stat.multipleMatches / stat.totalTests) *
-          100
-        ).toFixed(1)}%)`
-      );
-    }
-  });
+  // Print final statistics for all networks at the end
+  console.log("\n=================================================================");
+  console.log("Final Statistics Across All Networks:");
+  console.log("=================================================================\n");
+
+  for (const networkStats of allNetworkStats) {
+    console.log(`\nNetwork: ${networkStats.networkName}`);
+    console.log("================");
+    Object.entries(networkStats.stats).forEach(([contractType, stat]) => {
+      if (stat.totalTests > 0) {
+        const allPassed = stat.exactMatches === stat.totalTests;
+        console.log(`\n${contractType}: ${allPassed ? "✅" : "❌"}`);
+        console.log(`  Total tests: ${stat.totalTests}`);
+        console.log(
+          `  Exact matches: ${stat.exactMatches} (${(
+            (stat.exactMatches / stat.totalTests) *
+            100
+          ).toFixed(1)}%)`
+        );
+        console.log(
+          `  No matches: ${stat.noMatches} (${((stat.noMatches / stat.totalTests) * 100).toFixed(
+            1
+          )}%)`
+        );
+        console.log(
+          `  Multiple matches: ${stat.multipleMatches} (${(
+            (stat.multipleMatches / stat.totalTests) *
+            100
+          ).toFixed(1)}%)`
+        );
+      }
+    });
+    console.log("\n-----------------");
+  }
 };
 
 main();
