@@ -144,9 +144,6 @@ ${network.factories
       transport: http(`${network.alchemyUrl}/${process.env.ALCHEMY_API_KEY}`),
     });
 
-    console.log("Phase 1: Gathering Test Data\n");
-    console.log("Querying factory contracts for instances of each contract type...\n");
-
     const allInstances = new Map<keyof ContractType, Address[]>();
     let totalInstances = 0;
 
@@ -158,26 +155,15 @@ ${network.factories
       );
       allInstances.set(masterCopy.expectedType, instances);
       totalInstances += instances.length;
-
-      console.log(`${masterCopy.expectedType}: ${instances.length} instances found`);
     }
-
-    console.log(`\nTotal test instances found: ${totalInstances}`);
-    console.log("\n=================================================================\n");
 
     if (totalInstances === 0) {
-      console.log(`No instances found on ${network.chain.name}, skipping tests.\n`);
       continue;
     }
-
-    console.log("Phase 2: Running Contract Type Detection Tests\n");
 
     const stats = initializeStats();
 
     for (const [contractType, instances] of allInstances) {
-      console.log(`\nTesting ${contractType} instances:`);
-      console.log(`Found ${instances.length} instances to test\n`);
-
       if (instances.length > 0) {
         for (const instance of instances) {
           const result = await identifyContract(client, instance);
@@ -185,8 +171,6 @@ ${network.factories
           updateStats(stats, contractType, result);
         }
       }
-
-      console.log("\n===================\n");
     }
 
     // Save the stats for this network
