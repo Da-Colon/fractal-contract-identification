@@ -27,20 +27,6 @@ export type ContractFunctionTest = {
   resultKey: keyof ContractType;
 };
 
-export type NetworkConfig = {
-  chain: Chain;
-  alchemyUrl: string;
-  factories: {
-    address: Address;
-    deploymentBlock: bigint;
-  }[];
-  MASTER_COPY_ADDRESSES: {
-    address: Address;
-    expectedType: keyof ContractType;
-  }[];
-  isTestnet: boolean;
-};
-
 export type TestStats = {
   totalTests: number;
   exactMatches: number;

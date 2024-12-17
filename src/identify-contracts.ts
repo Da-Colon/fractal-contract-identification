@@ -1,29 +1,10 @@
 import { createPublicClient, http, type Address, type PublicClient } from "viem";
 import { ZodiacModuleProxyFactoryAbi } from "./abis/ZodiacModuleProxyFactoryAbi";
-import type { ContractType, NetworkConfig, StatsMap, NetworkStats } from "./types";
-import { CONTRACT_TESTS, DEFAULT_CONTRACT_TYPE, NETWORKS } from "./constants";
+import type { ContractType, StatsMap, NetworkStats } from "./types";
+import { CONTRACT_TESTS, DEFAULT_CONTRACT_TYPE } from "./constants";
+import { filterNetworks, type NetworkConfig, NETWORKS, parseNetworksArg } from "./networks";
 
-function parseNetworksArg(): string {
-  const networksArg = process.argv.find((arg) => arg.startsWith("--networks="));
-  return networksArg ? networksArg.split("=")[1] : "all";
-}
-
-function filterNetworks(networks: NetworkConfig[], filter: string): NetworkConfig[] {
-  switch (filter) {
-    case "testnets":
-      return networks.filter((n) => n.isTestnet);
-    case "mainnets":
-      return networks.filter((n) => !n.isTestnet);
-    case "all":
-    default:
-      return networks;
-  }
-}
-
-export async function identifyContract(
-  client: PublicClient,
-  address: Address
-): Promise<ContractType> {
+async function identifyContract(client: PublicClient, address: Address): Promise<ContractType> {
   const result = { ...DEFAULT_CONTRACT_TYPE };
 
   const allCalls = CONTRACT_TESTS.flatMap((test) => [
