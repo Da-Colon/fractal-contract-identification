@@ -1,6 +1,6 @@
 import type { Chain, Address } from "viem";
 import { base, optimism, polygon, mainnet, sepolia } from "viem/chains";
-import type { ContractType } from "./types";
+import type { ContractType } from "./contracts";
 
 export type NetworkConfig = {
   chain: Chain;

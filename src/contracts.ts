@@ -1,3 +1,34 @@
+import type { Address, Abi, PublicClient } from "viem";
+import { ZodiacModuleProxyFactoryAbi } from "./abis/ZodiacModuleProxyFactoryAbi";
+import type { NetworkConfig } from "./networks";
+
+export type AddressTest = {
+  address: Address;
+  expectedType: keyof ContractType;
+};
+
+export type ContractType = {
+  isClaimErc20: boolean;
+  isFreezeGuardAzorius: boolean;
+  isFreezeGuardMultisig: boolean;
+  isFreezeVotingErc20: boolean;
+  isFreezeVotingErc721: boolean;
+  isFreezeVotingMultisig: boolean;
+  isLinearVotingErc20: boolean;
+  isLinearVotingErc721: boolean;
+  isModuleAzorius: boolean;
+  isModuleFractal: boolean;
+  isVotesErc20: boolean;
+  isVotesErc20Wrapper: boolean;
+};
+
+export type ContractFunctionTest = {
+  abi: Abi;
+  functionNames: string[];
+  revertFunctionNames?: string[];
+  resultKey: keyof ContractType;
+};
+
 import { ClaimErc20Abi } from "./abis/ClaimErc20Abi";
 import { FreezeGuardAzoriusAbi } from "./abis/FreezeGuardAzoriusAbi";
 import { FreezeGuardMultisigAbi } from "./abis/FreezeGuardMultisigAbi";
@@ -10,9 +41,6 @@ import { ModuleAzoriusAbi } from "./abis/ModuleAzoriusAbi";
 import { ModuleFractalAbi } from "./abis/ModuleFractalAbi";
 import { VotesErc20Abi } from "./abis/VotesErc20Abi";
 import { VotesErc20WrapperAbi } from "./abis/VotesErc20WrapperAbi";
-
-import type { AddressTest, ContractType, ContractFunctionTest } from "./types";
-import type { Abi } from "viem";
 
 function combineAbis(...abis: Abi[]): Abi {
   return abis.flat();
@@ -225,3 +253,75 @@ export const CONTRACT_TESTS: ContractFunctionTest[] = [
     resultKey: "isVotesErc20Wrapper",
   },
 ];
+
+export async function identifyContract(
+  client: PublicClient,
+  address: Address
+): Promise<ContractType> {
+  const result = { ...DEFAULT_CONTRACT_TYPE };
+
+  const allCalls = CONTRACT_TESTS.flatMap((test) => [
+    ...test.functionNames.map((fn) => ({
+      address,
+      abi: test.abi,
+      functionName: fn,
+      args: [],
+    })),
+    ...(test.revertFunctionNames?.map((fn) => ({
+      address,
+      abi: test.abi,
+      functionName: fn,
+      args: [],
+    })) ?? []),
+  ]);
+
+  const allResults = await client.multicall({
+    contracts: allCalls,
+  });
+
+  let resultIndex = 0;
+  for (const test of CONTRACT_TESTS) {
+    const successResults = allResults.slice(resultIndex, resultIndex + test.functionNames.length);
+    const successPassed = successResults.every((r) => !r.error);
+    resultIndex += test.functionNames.length;
+
+    let revertPassed = true;
+    if (test.revertFunctionNames?.length) {
+      const revertResults = allResults.slice(
+        resultIndex,
+        resultIndex + test.revertFunctionNames.length
+      );
+      revertPassed = revertResults.every((r) => r.error);
+      resultIndex += test.revertFunctionNames.length;
+    }
+
+    result[test.resultKey] = successPassed && revertPassed;
+  }
+
+  return result;
+}
+
+export async function getInstancesForMasterCopy(
+  client: PublicClient,
+  masterCopyAddress: Address,
+  factories: NetworkConfig["factories"]
+): Promise<Address[]> {
+  const allLogs: any[] = [];
+
+  for (const factory of factories) {
+    const logs = await client.getContractEvents({
+      address: factory.address,
+      abi: ZodiacModuleProxyFactoryAbi,
+      eventName: "ModuleProxyCreation",
+      args: {
+        masterCopy: masterCopyAddress,
+      },
+      fromBlock: factory.deploymentBlock,
+    });
+    allLogs.push(...logs);
+  }
+
+  return allLogs
+    .sort((a, b) => Number(b.blockNumber) - Number(a.blockNumber))
+    .map((log) => log.args.proxy as Address);
+}

@@ -1,6 +1,5 @@
 import type { Address } from "viem";
-import { DEFAULT_CONTRACT_TYPE } from "./constants";
-import type { ContractType } from "./types";
+import { type ContractType, DEFAULT_CONTRACT_TYPE } from "./contracts";
 
 export type TestStats = {
   totalTests: number;
