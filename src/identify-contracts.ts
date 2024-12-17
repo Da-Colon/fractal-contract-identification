@@ -1,8 +1,9 @@
 import { createPublicClient, http, type Address, type PublicClient } from "viem";
 import { ZodiacModuleProxyFactoryAbi } from "./abis/ZodiacModuleProxyFactoryAbi";
-import type { ContractType, StatsMap, NetworkStats } from "./types";
+import type { ContractType } from "./types";
 import { CONTRACT_TESTS, DEFAULT_CONTRACT_TYPE } from "./constants";
 import { filterNetworks, type NetworkConfig, NETWORKS, parseNetworksArg } from "./networks";
+import { type NetworkStats, initializeStats, logTestResults, updateStats } from "./stats";
 
 async function identifyContract(client: PublicClient, address: Address): Promise<ContractType> {
   const result = { ...DEFAULT_CONTRACT_TYPE };
@@ -71,47 +72,6 @@ async function getInstancesForMasterCopy(
   return allLogs
     .sort((a, b) => Number(b.blockNumber) - Number(a.blockNumber))
     .map((log) => log.args.proxy as Address);
-}
-
-function initializeStats(): StatsMap {
-  return Object.keys(DEFAULT_CONTRACT_TYPE).reduce((acc, key) => {
-    acc[key as keyof ContractType] = {
-      totalTests: 0,
-      exactMatches: 0,
-      noMatches: 0,
-      multipleMatches: 0,
-    };
-    return acc;
-  }, {} as StatsMap);
-}
-
-function logTestResults(address: Address, expectedType: keyof ContractType, result: ContractType) {
-  const trueCount = Object.values(result).filter((v) => v).length;
-  const matchedTypes = Object.entries(result)
-    .filter(([_, value]) => value)
-    .map(([key]) => key);
-  const matchedExpected = result[expectedType];
-
-  console.log(
-    `${address}: expected=${expectedType}, matches=${trueCount} (${
-      matchedTypes.join(", ") || "none"
-    }) ${matchedExpected ? "✅" : "❌"}${!matchedExpected || trueCount !== 1 ? " ⚠️" : ""}`
-  );
-}
-
-function updateStats(stats: StatsMap, expectedType: keyof ContractType, result: ContractType) {
-  const trueCount = Object.values(result).filter((v) => v).length;
-  const matchedExpected = result[expectedType];
-
-  stats[expectedType].totalTests++;
-
-  if (trueCount === 0) {
-    stats[expectedType].noMatches++;
-  } else if (trueCount === 1 && matchedExpected) {
-    stats[expectedType].exactMatches++;
-  } else {
-    stats[expectedType].multipleMatches++;
-  }
 }
 
 const main = async () => {

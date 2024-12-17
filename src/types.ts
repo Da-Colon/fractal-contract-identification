@@ -26,19 +26,3 @@ export type ContractFunctionTest = {
   revertFunctionNames?: string[];
   resultKey: keyof ContractType;
 };
-
-export type TestStats = {
-  totalTests: number;
-  exactMatches: number;
-  noMatches: number;
-  multipleMatches: number;
-};
-
-export type StatsMap = {
-  [K in keyof ContractType]: TestStats;
-};
-
-export type NetworkStats = {
-  networkName: string;
-  stats: StatsMap;
-};
