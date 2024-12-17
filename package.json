@@ -1,7 +1,9 @@
 {
   "name": "fractal-contract-identification",
   "scripts": {
-    "identifyContracts": "vite-node src/identify-contracts.ts"
+    "report:all": "vite-node src/identify-contracts.ts --networks=all",
+    "report:testnets": "vite-node src/identify-contracts.ts --networks=testnets",
+    "report:mainnets": "vite-node src/identify-contracts.ts --networks=mainnets"
   },
   "dependencies": {
     "viem": "^2.21.38",

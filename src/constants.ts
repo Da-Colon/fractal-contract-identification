@@ -230,6 +230,7 @@ export const CONTRACT_TESTS: ContractFunctionTest[] = [
 export const NETWORKS: NetworkConfig[] = [
   {
     chain: base,
+    isTestnet: false,
     alchemyUrl: "https://base-mainnet.g.alchemy.com/v2",
     factories: [
       {
@@ -294,6 +295,7 @@ export const NETWORKS: NetworkConfig[] = [
   },
   {
     chain: optimism,
+    isTestnet: false,
     alchemyUrl: "https://opt-mainnet.g.alchemy.com/v2",
     factories: [
       {
@@ -358,6 +360,7 @@ export const NETWORKS: NetworkConfig[] = [
   },
   {
     chain: polygon,
+    isTestnet: false,
     alchemyUrl: "https://polygon-mainnet.g.alchemy.com/v2",
     factories: [
       {
@@ -422,6 +425,7 @@ export const NETWORKS: NetworkConfig[] = [
   },
   {
     chain: mainnet,
+    isTestnet: false,
     alchemyUrl: "https://eth-mainnet.g.alchemy.com/v2",
     factories: [
       {
@@ -486,6 +490,7 @@ export const NETWORKS: NetworkConfig[] = [
   },
   {
     chain: sepolia,
+    isTestnet: true,
     alchemyUrl: "https://eth-sepolia.g.alchemy.com/v2",
     factories: [
       {

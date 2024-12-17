@@ -38,6 +38,7 @@ export type NetworkConfig = {
     address: Address;
     expectedType: keyof ContractType;
   }[];
+  isTestnet: boolean;
 };
 
 export type TestStats = {
