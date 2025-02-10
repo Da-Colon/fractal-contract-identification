@@ -14,39 +14,6 @@ import { base, optimism, polygon, mainnet, sepolia } from "viem/chains";
 
 const SENTINEL_ADDRESS = "0x0000000000000000000000000000000000000001";
 
-function findMasterCopyType(contractName: string): keyof ContractType {
-  switch (contractName) {
-    case "ERC20Claim":
-      return "isClaimErc20";
-    case "AzoriusFreezeGuard":
-    case "MultisigFreezeGuard":
-      return "isFreezeGuardAzorius";
-    case "MultisigFreezeGuard":
-      return "isFreezeGuardMultisig";
-    case "ERC20FreezeVoting":
-      return "isFreezeVotingErc20";
-    case "ERC721FreezeVoting":
-      return "isFreezeVotingErc721";
-    case "MultisigFreezeVoting":
-      return "isFreezeVotingMultisig";
-    case "LinearERC20Voting":
-      return "isLinearVotingErc20";
-    case "LinearERC20VotingWithHatsProposalCreation":
-      return "isLinearVotingErc20WithHatsProposalCreation";
-    case "LinearERC721Voting":
-      return "isLinearVotingErc721";
-    case "LinearERC721VotingWithHatsProposalCreation":
-      return "isLinearVotingErc721WithHatsProposalCreation";
-    case "Azorius":
-      return "isModuleAzorius";
-    case "FractalModule":
-      return "isModuleFractal";
-    case "VotesERC20":
-      return "isVotesErc20";
-  }
-  throw new Error(`Unknown contract name: ${contractName}`);
-}
-
 function getFactories(chainId: Number): { address: Address; deploymentBlock: bigint }[] {
   switch (chainId) {
     case 1:
