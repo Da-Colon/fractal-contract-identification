@@ -7,6 +7,7 @@ import {
   createPublicClient,
   http,
   type PublicClient,
+  zeroAddress,
 } from "viem";
 import { base, optimism, polygon, mainnet, sepolia } from "viem/chains";
 
@@ -25,6 +26,8 @@ type ContractType = {
   isModuleFractal: boolean;
   isVotesErc20: boolean;
 };
+
+const SENTINEL_ADDRESS = "0x0000000000000000000000000000000000000001";
 
 function findMasterCopyType(contractName: string): keyof ContractType {
   switch (contractName) {
@@ -154,136 +157,136 @@ function combineAbis(...abisToCombine: Abi[]): Abi {
 }
 
 const contractTests: ContractFunctionTest[] = [
-  // {
-  //   abi: abis.ERC20Claim,
-  //   functionNames: [
-  //     "childERC20",
-  //     "parentERC20",
-  //     "deadlineBlock",
-  //     "funder",
-  //     "owner",
-  //     "parentAllocation",
-  //     "snapShotId",
-  //   ],
-  //   resultKey: "isClaimErc20",
-  // },
-  // {
-  //   abi: combineAbis(abis.AzoriusFreezeGuard, abis.MultisigFreezeGuard),
-  //   functionNames: ["freezeVoting", "owner"],
-  //   revertFunctionNames: ["childGnosisSafe", "timelockPeriod", "executionPeriod"],
-  //   resultKey: "isFreezeGuardAzorius",
-  // },
-  // {
-  //   abi: abis.MultisigFreezeGuard,
-  //   functionNames: [
-  //     "childGnosisSafe",
-  //     "executionPeriod",
-  //     "freezeVoting",
-  //     "owner",
-  //     "timelockPeriod",
-  //   ],
-  //   resultKey: "isFreezeGuardMultisig",
-  // },
-  // {
-  //   abi: abis.ERC20FreezeVoting,
-  //   functionNames: [
-  //     "votesERC20",
-  //     "freezePeriod",
-  //     "freezeProposalPeriod",
-  //     "freezeProposalVoteCount",
-  //     "freezeVotesThreshold",
-  //     "isFrozen",
-  //     "owner",
-  //   ],
-  //   resultKey: "isFreezeVotingErc20",
-  // },
-  // {
-  //   abi: abis.ERC721FreezeVoting,
-  //   functionNames: [
-  //     "strategy",
-  //     "owner",
-  //     "isFrozen",
-  //     "freezeVotesThreshold",
-  //     "freezePeriod",
-  //     "freezeProposalVoteCount",
-  //     "freezeProposalPeriod",
-  //   ],
-  //   resultKey: "isFreezeVotingErc721",
-  // },
-  // {
-  //   abi: abis.MultisigFreezeVoting,
-  //   functionNames: [
-  //     "parentGnosisSafe",
-  //     "freezePeriod",
-  //     "freezeProposalPeriod",
-  //     "freezeProposalVoteCount",
-  //     "isFrozen",
-  //     "owner",
-  //   ],
-  //   resultKey: "isFreezeVotingMultisig",
-  // },
-  // {
-  //   abi: combineAbis(abis.LinearERC20Voting, abis.LinearERC20VotingWithHatsProposalCreation),
-  //   revertFunctionNames: ["getWhitelistedHatIds"],
-  //   functionNames: [
-  //     "BASIS_DENOMINATOR",
-  //     "QUORUM_DENOMINATOR",
-  //     "azoriusModule",
-  //     "basisNumerator",
-  //     "governanceToken",
-  //     "owner",
-  //     "quorumNumerator",
-  //     "votingPeriod",
-  //     "requiredProposerWeight",
-  //   ],
-  //   resultKey: "isLinearVotingErc20",
-  // },
-  // {
-  //   abi: abis.LinearERC20VotingWithHatsProposalCreation,
-  //   functionNames: [
-  //     "BASIS_DENOMINATOR",
-  //     "QUORUM_DENOMINATOR",
-  //     "azoriusModule",
-  //     "basisNumerator",
-  //     "governanceToken",
-  //     "owner",
-  //     "quorumNumerator",
-  //     "votingPeriod",
-  //     "requiredProposerWeight",
-  //     "getWhitelistedHatIds",
-  //   ],
-  //   resultKey: "isLinearVotingErc20WithHatsProposalCreation",
-  // },
-  // {
-  //   abi: combineAbis(abis.LinearERC721Voting, abis.LinearERC721VotingWithHatsProposalCreation),
-  //   revertFunctionNames: ["getWhitelistedHatIds"],
-  //   functionNames: [
-  //     "BASIS_DENOMINATOR",
-  //     "azoriusModule",
-  //     "basisNumerator",
-  //     "getAllTokenAddresses",
-  //     "owner",
-  //     "proposerThreshold",
-  //     "quorumThreshold",
-  //     "votingPeriod",
-  //   ],
-  //   resultKey: "isLinearVotingErc721",
-  // },
-  // {
-  //   abi: abis.LinearERC721VotingWithHatsProposalCreation,
-  //   functionNames: [
-  //     "BASIS_DENOMINATOR",
-  //     "azoriusModule",
-  //     "basisNumerator",
-  //     "getAllTokenAddresses",
-  //     "owner",
-  //     "proposerThreshold",
-  //     "quorumThreshold",
-  //     "votingPeriod",
-  //     "getWhitelistedHatIds",
-  //   ],
-  //   resultKey: "isLinearVotingErc721WithHatsProposalCreation",
-  // },
+  {
+    abi: abis.ERC20Claim,
+    functionNames: [
+      "childERC20",
+      "parentERC20",
+      "deadlineBlock",
+      "funder",
+      "owner",
+      "parentAllocation",
+      "snapShotId",
+    ],
+    resultKey: "isClaimErc20",
+  },
+  {
+    abi: combineAbis(abis.AzoriusFreezeGuard, abis.MultisigFreezeGuard),
+    functionNames: ["freezeVoting", "owner"],
+    revertFunctionNames: ["childGnosisSafe", "timelockPeriod", "executionPeriod"],
+    resultKey: "isFreezeGuardAzorius",
+  },
+  {
+    abi: abis.MultisigFreezeGuard,
+    functionNames: [
+      "childGnosisSafe",
+      "executionPeriod",
+      "freezeVoting",
+      "owner",
+      "timelockPeriod",
+    ],
+    resultKey: "isFreezeGuardMultisig",
+  },
+  {
+    abi: abis.ERC20FreezeVoting,
+    functionNames: [
+      "votesERC20",
+      "freezePeriod",
+      "freezeProposalPeriod",
+      "freezeProposalVoteCount",
+      "freezeVotesThreshold",
+      "isFrozen",
+      "owner",
+    ],
+    resultKey: "isFreezeVotingErc20",
+  },
+  {
+    abi: abis.ERC721FreezeVoting,
+    functionNames: [
+      "strategy",
+      "owner",
+      "isFrozen",
+      "freezeVotesThreshold",
+      "freezePeriod",
+      "freezeProposalVoteCount",
+      "freezeProposalPeriod",
+    ],
+    resultKey: "isFreezeVotingErc721",
+  },
+  {
+    abi: abis.MultisigFreezeVoting,
+    functionNames: [
+      "parentGnosisSafe",
+      "freezePeriod",
+      "freezeProposalPeriod",
+      "freezeProposalVoteCount",
+      "isFrozen",
+      "owner",
+    ],
+    resultKey: "isFreezeVotingMultisig",
+  },
+  {
+    abi: combineAbis(abis.LinearERC20Voting, abis.LinearERC20VotingWithHatsProposalCreation),
+    revertFunctionNames: ["getWhitelistedHatIds"],
+    functionNames: [
+      "BASIS_DENOMINATOR",
+      "QUORUM_DENOMINATOR",
+      "azoriusModule",
+      "basisNumerator",
+      "governanceToken",
+      "owner",
+      "quorumNumerator",
+      "votingPeriod",
+      "requiredProposerWeight",
+    ],
+    resultKey: "isLinearVotingErc20",
+  },
+  {
+    abi: abis.LinearERC20VotingWithHatsProposalCreation,
+    functionNames: [
+      "BASIS_DENOMINATOR",
+      "QUORUM_DENOMINATOR",
+      "azoriusModule",
+      "basisNumerator",
+      "governanceToken",
+      "owner",
+      "quorumNumerator",
+      "votingPeriod",
+      "requiredProposerWeight",
+      "getWhitelistedHatIds",
+    ],
+    resultKey: "isLinearVotingErc20WithHatsProposalCreation",
+  },
+  {
+    abi: combineAbis(abis.LinearERC721Voting, abis.LinearERC721VotingWithHatsProposalCreation),
+    revertFunctionNames: ["getWhitelistedHatIds"],
+    functionNames: [
+      "BASIS_DENOMINATOR",
+      "azoriusModule",
+      "basisNumerator",
+      "getAllTokenAddresses",
+      "owner",
+      "proposerThreshold",
+      "quorumThreshold",
+      "votingPeriod",
+    ],
+    resultKey: "isLinearVotingErc721",
+  },
+  {
+    abi: abis.LinearERC721VotingWithHatsProposalCreation,
+    functionNames: [
+      "BASIS_DENOMINATOR",
+      "azoriusModule",
+      "basisNumerator",
+      "getAllTokenAddresses",
+      "owner",
+      "proposerThreshold",
+      "quorumThreshold",
+      "votingPeriod",
+      "getWhitelistedHatIds",
+    ],
+    resultKey: "isLinearVotingErc721WithHatsProposalCreation",
+  },
   {
     abi: abis.Azorius,
     functionNames: [
@@ -300,24 +303,24 @@ const contractTests: ContractFunctionTest[] = [
     ],
     resultKey: "isModuleAzorius",
   },
-  // {
-  //   abi: combineAbis(abis.FractalModule, abis.Azorius),
-  //   functionNames: ["avatar", "target", "getGuard", "guard", "owner"],
-  //   revertFunctionNames: [
-  //     "timelockPeriod",
-  //     "executionPeriod",
-  //     "totalProposalCount",
-  //     "DOMAIN_SEPARATOR_TYPEHASH",
-  //     "TRANSACTION_TYPEHASH",
-  //   ],
-  //   resultKey: "isModuleFractal",
-  // },
-  // {
-  //   abi: combineAbis(abis.VotesERC20, abis.VotesERC20Wrapper),
-  //   functionNames: ["decimals", "name", "owner", "symbol", "totalSupply"],
-  //   revertFunctionNames: ["underlying"],
-  //   resultKey: "isVotesErc20",
-  // },
+  {
+    abi: combineAbis(abis.FractalModule, abis.Azorius),
+    functionNames: ["avatar", "target", "getGuard", "guard", "owner"],
+    revertFunctionNames: [
+      "timelockPeriod",
+      "executionPeriod",
+      "totalProposalCount",
+      "DOMAIN_SEPARATOR_TYPEHASH",
+      "TRANSACTION_TYPEHASH",
+    ],
+    resultKey: "isModuleFractal",
+  },
+  {
+    abi: combineAbis(abis.VotesERC20, abis.VotesERC20Wrapper),
+    functionNames: ["decimals", "name", "owner", "symbol", "totalSupply"],
+    revertFunctionNames: ["underlying"],
+    resultKey: "isVotesErc20",
+  },
 ];
 
 export type NetworkConfig = {
@@ -349,10 +352,6 @@ export function filterNetworks(networks: NetworkConfig[], filter: string): Netwo
 
 const networkConfigs = [base, optimism, polygon, mainnet, sepolia].map((chain) => {
   const chainId = chain.id;
-  // const contractAddresses = Object.entries(addresses[chainId]).map(([contractName, address]) => ({
-  //   address: address as Address,
-  //   expectedType: findMasterCopyType(contractName),
-  // }));
   return {
     chain,
     alchemyUrl: `https://eth-${chain.name === "Base" ? "b" : chain.name}.g.alchemy.com/v2`,
@@ -360,6 +359,53 @@ const networkConfigs = [base, optimism, polygon, mainnet, sepolia].map((chain) =
     isTestnet: chain.name !== "Ethereum",
   };
 });
+
+export async function identifyContract(
+  client: PublicClient,
+  address: Address,
+): Promise<ContractType> {
+  const result = { ...defaultContractType };
+
+  const allCalls = contractTests.flatMap((test) => [
+    ...test.functionNames.map((fn) => ({
+      address,
+      abi: test.abi,
+      functionName: fn,
+      args: [],
+    })),
+    ...(test.revertFunctionNames?.map((fn) => ({
+      address,
+      abi: test.abi,
+      functionName: fn,
+      args: [],
+    })) ?? []),
+  ]);
+
+  const allResults = await client.multicall({
+    contracts: allCalls,
+  });
+
+  let resultIndex = 0;
+  for (const test of contractTests) {
+    const successResults = allResults.slice(resultIndex, resultIndex + test.functionNames.length);
+    const successPassed = successResults.every((r: any) => !r.error);
+    resultIndex += test.functionNames.length;
+
+    let revertPassed = true;
+    if (test.revertFunctionNames?.length) {
+      const revertResults = allResults.slice(
+        resultIndex,
+        resultIndex + test.revertFunctionNames.length,
+      );
+      revertPassed = revertResults.every((r) => r.error);
+      resultIndex += test.revertFunctionNames.length;
+    }
+
+    result[test.resultKey] = successPassed && revertPassed;
+  }
+
+  return result;
+}
 
 async function getInstancesForMasterCopy(
   client: PublicClient,
@@ -430,7 +476,28 @@ async function main() {
         Found DAO at ${daoAddress}
         =================================================================`);
 
-      // @todo get the DAO's strategies types
+      const [s, ns] = await client.readContract({
+        address: daoAddress,
+        abi: abis.Azorius,
+        functionName: "getStrategies",
+        args: [SENTINEL_ADDRESS, 3n],
+      });
+
+      // identify each of the DAO's strategies
+      const strategies = [...s, ns]
+        .filter((strategy) => strategy !== SENTINEL_ADDRESS && strategy !== zeroAddress)
+        .map((strategy) => {
+          return {
+            address: strategy,
+            type: identifyContract(client, strategy),
+          };
+        });
+
+      console.log(`
+        =================================================================
+        Found ${strategies.length} strategies for ${daoAddress}
+        =================================================================`);
+
       // @todo get the DAO's treasury token balances
       // @todo get the DAO's treasury total USD
     }
