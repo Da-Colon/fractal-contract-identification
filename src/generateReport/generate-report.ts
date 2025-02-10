@@ -1,31 +1,16 @@
 import { ZodiacModuleProxyFactoryAbi } from "@/abis/ZodiacModuleProxyFactoryAbi";
+import type { ContractType, ContractFunctionTest } from "./types.contract";
+import type { NetworkConfig } from "./types.network";
 import { abis, addresses } from "@fractal-framework/fractal-contracts";
 import {
   type Abi,
   type Address,
-  type Chain,
+  type PublicClient,
   createPublicClient,
   http,
-  type PublicClient,
   zeroAddress,
 } from "viem";
 import { base, optimism, polygon, mainnet, sepolia } from "viem/chains";
-
-type ContractType = {
-  isClaimErc20: boolean;
-  isFreezeGuardAzorius: boolean;
-  isFreezeGuardMultisig: boolean;
-  isFreezeVotingErc20: boolean;
-  isFreezeVotingErc721: boolean;
-  isFreezeVotingMultisig: boolean;
-  isLinearVotingErc20: boolean;
-  isLinearVotingErc20WithHatsProposalCreation: boolean;
-  isLinearVotingErc721: boolean;
-  isLinearVotingErc721WithHatsProposalCreation: boolean;
-  isModuleAzorius: boolean;
-  isModuleFractal: boolean;
-  isVotesErc20: boolean;
-};
 
 const SENTINEL_ADDRESS = "0x0000000000000000000000000000000000000001";
 
@@ -139,17 +124,6 @@ const defaultContractType: ContractType = {
   isVotesErc20: false,
   isLinearVotingErc20WithHatsProposalCreation: false,
   isLinearVotingErc721WithHatsProposalCreation: false,
-};
-
-type ContractFunctionTest = {
-  // The ABI of the contract to test
-  abi: Abi;
-  // These functions must not revert when called
-  functionNames: string[];
-  // These functions must revert when called
-  revertFunctionNames?: string[];
-  // The key in the result object to set
-  resultKey: keyof ContractType;
 };
 
 function combineAbis(...abisToCombine: Abi[]): Abi {
@@ -323,16 +297,6 @@ const contractTests: ContractFunctionTest[] = [
   },
 ];
 
-export type NetworkConfig = {
-  chain: Chain;
-  alchemyUrl: string;
-  factories: {
-    address: Address;
-    deploymentBlock: bigint;
-  }[];
-  isTestnet: boolean;
-};
-
 export function parseNetworksArg(): string {
   const networksArg = process.argv.find((arg) => arg.startsWith("--networks="));
   return networksArg ? networksArg.split("=")[1] : "all";
@@ -499,6 +463,7 @@ async function main() {
         =================================================================`);
 
       // @todo get the DAO's treasury token balances
+      // moralis?
       // @todo get the DAO's treasury total USD
     }
   }
