@@ -60,35 +60,32 @@ async function getTokenPrices(client: Alchemy, tokenAddresses: Address[], networ
   }));
 }
 
-export function calculateUsdBalance(
-  tokenBalance: string,
-  decimals: number,
-  usdPrice?: string,
-): string {
+export function calculateUsdBalance(tokenBalance: string, decimals: number, usdPrice?: string) {
   // If no USD price is provided, we cannot compute a balance.
-  if (usdPrice == undefined) return "n/a";
+  if (usdPrice == undefined) return;
 
   try {
     const humanReadableBalanceStr = formatUnits(BigInt(tokenBalance), decimals);
-
     const humanReadableBalance = parseFloat(humanReadableBalanceStr);
-    if (isNaN(humanReadableBalance)) return "n/a";
+    if (isNaN(humanReadableBalance)) return;
 
-    const usdValue = humanReadableBalance * Number(usdPrice);
-
-    // Format the result as US currency with two decimal places.
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(usdValue);
+    return humanReadableBalance * Number(usdPrice);
   } catch (error) {
-    return "n/a";
+    return;
   }
 }
 
-export async function getERC20Balances(address: Address, chainId: number) {
+export function formatUSDValue(value: number | undefined) {
+  if (!value) return "n/a";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value));
+}
+
+export async function getERC20TokenData(address: Address, chainId: number) {
   const client = getAlchemyClient(chainId);
   const tokenBalances = await client.core.getTokenBalances(address);
   const tokenAddresses = tokenBalances.tokenBalances.map((token) =>
@@ -107,18 +104,20 @@ export async function getERC20Balances(address: Address, chainId: number) {
       // @todo don't leave this as an error. should return whatever data is available
       throw new Error(`Failed to fetch token metadata, price or balance for address ${address}`);
     }
-
+    const usdBalance = calculateUsdBalance(
+      balance.tokenBalance,
+      tokenMetadata.decimals,
+      tokenUSDPrice.usdPrice,
+    );
     return {
       name: tokenMetadata.name,
       symbol: tokenMetadata.symbol,
       logo: tokenMetadata.logo,
       decimals: tokenMetadata.decimals,
       usdPrice: tokenUSDPrice.usdPrice,
-      usdBalance: calculateUsdBalance(
-        balance.tokenBalance,
-        tokenMetadata.decimals,
-        tokenUSDPrice.usdPrice,
-      ),
+      usdPriceFrmt: formatUSDValue(Number(tokenUSDPrice.usdPrice)),
+      usdBalance,
+      usdBalanceFrmt: formatUSDValue(usdBalance),
       balance: balance.tokenBalance,
     };
   });

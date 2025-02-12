@@ -3,6 +3,7 @@ import { type Address, createPublicClient, http, zeroAddress } from "viem";
 import { SENTINEL_ADDRESS } from "./variables.common";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
 import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
+import { getERC20TokenData } from "./helpers.token";
 
 async function main() {
   console.log("Generating report...");
@@ -70,9 +71,7 @@ async function main() {
         Found ${strategies.length} strategies for ${daoAddress}
         =================================================================`);
 
-      // @todo get the DAO's treasury token balances
-      // moralis?
-      // @todo get the DAO's treasury total USD
+      const getTokenBalanceAndData = getERC20TokenData(daoAddress, client.chain.id);
     }
   }
 }
