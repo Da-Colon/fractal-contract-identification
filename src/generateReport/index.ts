@@ -148,9 +148,9 @@ async function main() {
       totalTokenBalance: dao.totalTokenBalance,
       tokenCount: dao.tokens.length,
       ...dao.strategies.reduce(
-        (acc, strategy) => {
+        (acc, strategy, index) => {
           const type = getContractType(strategy.type);
-          acc[type] = type;
+          acc[`Strategy ${index}`] = type;
           return acc;
         },
         {} as Record<string, string>,
