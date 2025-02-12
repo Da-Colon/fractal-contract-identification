@@ -108,7 +108,7 @@ async function main() {
 
       console.log(`
         =================================================================
-        Found ${tokensData.length} tokens for ${daoAddress}, totaling ${totalTokenBalance}
+        Found ${tokensData.length} tokens for ${daoAddress}, Total Value ${totalTokenBalance}
         =================================================================`);
 
       daoData.push({
