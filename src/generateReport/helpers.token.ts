@@ -35,14 +35,24 @@ function getAlchemyClient(chainId: number) {
 async function getTokenMetadata(client: Alchemy, tokenAddresses: Address[]) {
   return Promise.all(
     tokenAddresses.map(async (address) => {
-      const metadata = await client.core.getTokenMetadata(address);
-      return {
-        address,
-        name: metadata.name,
-        symbol: metadata.symbol,
-        logo: metadata.logo,
-        decimals: metadata.decimals,
-      };
+      try {
+        const metadata = await client.core.getTokenMetadata(address);
+        return {
+          address,
+          name: metadata.name,
+          symbol: metadata.symbol,
+          logo: metadata.logo,
+          decimals: metadata.decimals,
+        };
+      } catch (error) {
+        return {
+          address,
+          name: null,
+          symbol: null,
+          logo: null,
+          decimals: null,
+        };
+      }
     }),
   );
 }
