@@ -101,14 +101,14 @@ async function main() {
         =================================================================`);
 
       const tokensData = await getERC20TokenData(daoAddress, client.chain.id);
-      console.log("🚀 ~ tokensData:", tokensData);
       const totalTokenBalance = formatUSDValue(
         tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0),
       );
 
       console.log(`
         =================================================================
-        Found ${tokensData.length} tokens for ${daoAddress}, Total Value ${totalTokenBalance}
+        Found ${tokensData.length} tokens for ${daoAddress} 
+        Total Value ${totalTokenBalance}
         =================================================================`);
 
       daoData.push({
