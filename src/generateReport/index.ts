@@ -49,7 +49,7 @@ async function main() {
         =================================================================`);
 
       const [s, ns] = await client.readContract({
-        address: daoAddress,
+        address: instance,
         abi: abis.Azorius,
         functionName: "getStrategies",
         args: [SENTINEL_ADDRESS, 3n],
