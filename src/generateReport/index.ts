@@ -8,6 +8,7 @@ import type { ContractType } from "./types.contract";
 
 interface DAOData {
   address: Address;
+  network: string;
   strategies: {
     address: Address;
     type: ContractType;
@@ -35,6 +36,11 @@ async function main() {
     Generating DAO reports for ${filteredNetworks.map((n) => n.chain.name).join(", ")} networks:
     =================================================================`);
   for (const network of filteredNetworks) {
+    console.log(`
+      =================================================================
+      Starting to gather data for ${network.chain.name}
+      =================================================================`);
+
     // get the client
     const client = createPublicClient({
       chain: network.chain,
@@ -95,6 +101,7 @@ async function main() {
         =================================================================`);
 
       const tokensData = await getERC20TokenData(daoAddress, client.chain.id);
+      console.log("🚀 ~ tokensData:", tokensData);
       const totalTokenBalance = formatUSDValue(
         tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0),
       );
@@ -106,6 +113,7 @@ async function main() {
 
       daoData.push({
         address: daoAddress,
+        network: network.chain.name,
         strategies,
         totalTokenBalance,
         tokens: tokensData.map((token) => ({
@@ -117,6 +125,7 @@ async function main() {
           name: token.name,
         })),
       });
+      setTimeout(() => {}, 300);
     }
   }
 
@@ -132,7 +141,17 @@ async function main() {
     Generating report...
     =================================================================`);
 
-  console.table(daoData);
+  console.table(
+    daoData.map((dao) => ({
+      address: dao.address,
+      network: dao.network,
+      ...dao.strategies.map((strategy) => ({
+        [`${strategy.type}`]: strategy.type,
+      })),
+      totalTokenBalance: dao.totalTokenBalance,
+      tokenCount: dao.tokens.length,
+    })),
+  );
 }
 
 main();

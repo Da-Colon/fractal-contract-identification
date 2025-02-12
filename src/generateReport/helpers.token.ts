@@ -70,7 +70,9 @@ async function getTokenPrices(client: Alchemy, tokenAddresses: Address[], networ
       usdPrice: rate.prices.find((price) => price.currency === "usd")?.value,
     }));
   } catch (error) {
-    console.error("Failed to fetch token prices:", error);
+    console.error("Failed to fetch token prices:", {
+      network,
+    });
     return [];
   }
 }
@@ -83,15 +85,11 @@ export function calculateUsdBalance(
   // If no USD price is provided, we cannot compute a balance.
   if (usdPrice == undefined || tokenBalance === null || decimals === null) return;
 
-  try {
-    const humanReadableBalanceStr = formatUnits(BigInt(tokenBalance), decimals);
-    const humanReadableBalance = parseFloat(humanReadableBalanceStr);
-    if (isNaN(humanReadableBalance)) return;
+  const humanReadableBalanceStr = formatUnits(BigInt(tokenBalance), decimals);
+  const humanReadableBalance = parseFloat(humanReadableBalanceStr);
+  if (isNaN(humanReadableBalance)) return;
 
-    return humanReadableBalance * Number(usdPrice);
-  } catch (error) {
-    return;
-  }
+  return humanReadableBalance * Number(usdPrice);
 }
 
 export function formatUSDValue(value: number | undefined) {
@@ -132,13 +130,13 @@ export async function getERC20TokenData(address: Address, chainId: number) {
       const tb = tokenBalances.tokenBalances.find(
         (token) => getAddress(token.contractAddress) === address,
       );
-      const balance = tb ?? {
+      const tokenBalance = tb ?? {
         contractAddress: address,
         tokenBalance: "0",
       };
 
       const usdBalance = calculateUsdBalance(
-        balance.tokenBalance,
+        tokenBalance.tokenBalance,
         tokenMetadata.decimals,
         tokenUSDPrice.usdPrice,
       );
@@ -152,11 +150,11 @@ export async function getERC20TokenData(address: Address, chainId: number) {
         usdPriceFrmt: formatUSDValue(Number(tokenUSDPrice.usdPrice)),
         usdBalance,
         usdBalanceFrmt: formatUSDValue(usdBalance),
-        balance: balance.tokenBalance,
+        balance: tokenBalance.tokenBalance,
       };
     });
   } catch (error) {
-    console.error(`Failed to fetch token data for address ${address} on chain ${chainId}`, error);
+    console.error(`Failed to fetch token data for address ${address} on chain ${chainId}`);
     return [];
   }
 }
