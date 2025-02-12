@@ -41,7 +41,7 @@ export function getNetworkConfig() {
     const chainId = chain.id;
     return {
       chain,
-      alchemyUrl: getAlchemyUrl(chainId),
+      alchemyUrl: `${getAlchemyUrl(chainId)}/${process.env.ALCHEMY_API_KEY}`,
       factories: getFactories(chainId),
       isTestnet: !!chain.testnet,
     };

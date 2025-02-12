@@ -9,7 +9,7 @@ function getAlchemyNetwork(chainId: number) {
     case 10:
       return Network.OPT_MAINNET;
     case 137:
-      return Network.POLYNOMIAL_MAINNET;
+      return Network.MATIC_MAINNET;
     case 8453:
       return Network.BASE_MAINNET;
     case 11155111:
@@ -154,7 +154,7 @@ export async function getERC20TokenData(address: Address, chainId: number) {
       };
     });
   } catch (error) {
-    console.error(`Failed to fetch token data for address ${address} on chain ${chainId}`);
+    console.error(`Failed to fetch token data for address ${address} on chain ${chainId}`, error);
     return [];
   }
 }

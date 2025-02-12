@@ -44,7 +44,7 @@ async function main() {
     // get the client
     const client = createPublicClient({
       chain: network.chain,
-      transport: http(`${network.alchemyUrl}/${process.env.ALCHEMY_API_KEY}`),
+      transport: http(`${network.alchemyUrl}`),
     });
 
     // get the azorius module master copy address
