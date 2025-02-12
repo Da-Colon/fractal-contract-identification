@@ -32,7 +32,7 @@ async function main() {
 
   console.log(`
     =================================================================
-    Generating DAO reports for ${filteredNetworks.join(", ")} networks:
+    Generating DAO reports for ${filteredNetworks.map((n) => n.chain.name).join(", ")} networks:
     =================================================================`);
   for (const network of filteredNetworks) {
     // get the client
