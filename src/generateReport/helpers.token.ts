@@ -58,16 +58,21 @@ async function getTokenMetadata(client: Alchemy, tokenAddresses: Address[]) {
 }
 
 async function getTokenPrices(client: Alchemy, tokenAddresses: Address[], network: Network) {
-  const rates = await client.prices.getTokenPriceByAddress(
-    tokenAddresses.map((address) => ({
-      address,
-      network,
-    })),
-  );
-  return rates.data.map((rate) => ({
-    address: getAddress(rate.address),
-    usdPrice: rate.prices.find((price) => price.currency === "usd")?.value,
-  }));
+  try {
+    const rates = await client.prices.getTokenPriceByAddress(
+      tokenAddresses.map((address) => ({
+        address,
+        network,
+      })),
+    );
+    return rates.data.map((rate) => ({
+      address: getAddress(rate.address),
+      usdPrice: rate.prices.find((price) => price.currency === "usd")?.value,
+    }));
+  } catch (error) {
+    console.error("Failed to fetch token prices:", error);
+    return [];
+  }
 }
 
 export function calculateUsdBalance(
