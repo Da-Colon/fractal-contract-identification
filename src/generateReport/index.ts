@@ -3,12 +3,33 @@ import { type Address, createPublicClient, http, zeroAddress } from "viem";
 import { SENTINEL_ADDRESS } from "./variables.common";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
 import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
-import { getERC20TokenData } from "./helpers.token";
+import { formatUSDValue, getERC20TokenData } from "./helpers.token";
+import type { ContractType } from "./types.contract";
+
+interface DAOData {
+  address: Address;
+  strategies: {
+    address: Address;
+    type: ContractType;
+  }[];
+  totalTokenBalance: string;
+  tokens: {
+    address: Address;
+    symbol: string | null;
+    usdBalance: number | undefined;
+    usdPrice: string | undefined;
+    logo: string | null;
+    name: string | null;
+  }[];
+}
 
 async function main() {
   console.log("Generating report...");
   const networksFilter = parseNetworksArg();
   const filteredNetworks = filterNetworks(getNetworkConfig(), networksFilter);
+
+  const daoData: DAOData[] = [];
+
   console.log(`
     =================================================================
     Generating DAO reports for ${filteredNetworks.join(", ")} networks:
@@ -57,21 +78,45 @@ async function main() {
       });
 
       // identify each of the DAO's strategies
-      const strategies = [...s, ns]
-        .filter((strategy) => strategy !== SENTINEL_ADDRESS && strategy !== zeroAddress)
-        .map((strategy) => {
-          return {
-            address: strategy,
-            type: identifyContract(client, strategy),
-          };
-        });
+      const strategies = await Promise.all(
+        [...s, ns]
+          .filter((strategy) => strategy !== SENTINEL_ADDRESS && strategy !== zeroAddress)
+          .map(async (strategy) => {
+            return {
+              address: strategy,
+              type: await identifyContract(client, strategy),
+            };
+          }),
+      );
 
       console.log(`
         =================================================================
         Found ${strategies.length} strategies for ${daoAddress}
         =================================================================`);
 
-      const getTokenBalanceAndData = getERC20TokenData(daoAddress, client.chain.id);
+      const tokensData = await getERC20TokenData(daoAddress, client.chain.id);
+      const totalTokenBalance = formatUSDValue(
+        tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0),
+      );
+
+      console.log(`
+        =================================================================
+        Found #{tokensData.length} tokens for ${daoAddress}, totaling ${totalTokenBalance}
+        =================================================================`);
+
+      daoData.push({
+        address: daoAddress,
+        strategies,
+        totalTokenBalance,
+        tokens: tokensData.map((token) => ({
+          address: token.address,
+          symbol: token.symbol,
+          usdBalance: token.usdBalance,
+          usdPrice: token.usdPrice,
+          logo: token.logo,
+          name: token.name,
+        })),
+      });
     }
   }
 }
