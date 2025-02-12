@@ -29,7 +29,7 @@ function getAlchemyUrl(chainId: number): string {
       return "https://opt-mainnet.g.alchemy.com/v2";
     case 137:
       return "https://polygon-mainnet.g.alchemy.com/v2";
-    case 8543:
+    case 8453:
       return "https://base-mainnet.g.alchemy.com/v2";
     default:
       throw new Error(`Unsupported chain ID: ${chainId}`);

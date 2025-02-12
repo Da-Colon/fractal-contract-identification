@@ -10,7 +10,7 @@ function getAlchemyNetwork(chainId: number) {
       return Network.OPT_MAINNET;
     case 137:
       return Network.POLYNOMIAL_MAINNET;
-    case 8543:
+    case 8453:
       return Network.BASE_MAINNET;
     case 11155111:
       return Network.ETH_SEPOLIA;
