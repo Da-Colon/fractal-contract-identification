@@ -60,9 +60,13 @@ async function getTokenPrices(client: Alchemy, tokenAddresses: Address[], networ
   }));
 }
 
-export function calculateUsdBalance(tokenBalance: string, decimals: number, usdPrice?: string) {
+export function calculateUsdBalance(
+  tokenBalance: string | null,
+  decimals: number | null,
+  usdPrice?: string,
+) {
   // If no USD price is provided, we cannot compute a balance.
-  if (usdPrice == undefined) return;
+  if (usdPrice == undefined || tokenBalance === null || decimals === null) return;
 
   try {
     const humanReadableBalanceStr = formatUnits(BigInt(tokenBalance), decimals);
@@ -87,39 +91,57 @@ export function formatUSDValue(value: number | undefined) {
 
 export async function getERC20TokenData(address: Address, chainId: number) {
   const client = getAlchemyClient(chainId);
-  const tokenBalances = await client.core.getTokenBalances(address);
-  const tokenAddresses = tokenBalances.tokenBalances.map((token) =>
-    getAddress(token.contractAddress),
-  );
-  const tokensMetadata = await getTokenMetadata(client, tokenAddresses);
-  const tokensPrices = await getTokenPrices(client, tokenAddresses, getAlchemyNetwork(chainId));
+  try {
+    const tokenBalances = await client.core.getTokenBalances(address);
+    const tokenAddresses = tokenBalances.tokenBalances.map((token) =>
+      getAddress(token.contractAddress),
+    );
+    const tokensMetadata = await getTokenMetadata(client, tokenAddresses);
+    const tokensPrices = await getTokenPrices(client, tokenAddresses, getAlchemyNetwork(chainId));
 
-  return tokenAddresses.map((address) => {
-    const tokenMetadata = tokensMetadata.find((token) => token.address === address);
-    const tokenUSDPrice = tokensPrices.find((price) => price.address === address);
-    const balance = tokenBalances.tokenBalances.find(
-      (token) => getAddress(token.contractAddress) === address,
-    );
-    if (!tokenMetadata || !tokenUSDPrice || !balance?.tokenBalance || !tokenMetadata?.decimals) {
-      // @todo don't leave this as an error. should return whatever data is available
-      throw new Error(`Failed to fetch token metadata, price or balance for address ${address}`);
-    }
-    const usdBalance = calculateUsdBalance(
-      balance.tokenBalance,
-      tokenMetadata.decimals,
-      tokenUSDPrice.usdPrice,
-    );
-    return {
-      address,
-      name: tokenMetadata.name,
-      symbol: tokenMetadata.symbol,
-      logo: tokenMetadata.logo,
-      decimals: tokenMetadata.decimals,
-      usdPrice: tokenUSDPrice.usdPrice,
-      usdPriceFrmt: formatUSDValue(Number(tokenUSDPrice.usdPrice)),
-      usdBalance,
-      usdBalanceFrmt: formatUSDValue(usdBalance),
-      balance: balance.tokenBalance,
-    };
-  });
+    return tokenAddresses.map((address) => {
+      const tma = tokensMetadata.find((token) => token.address === address);
+      const tokenMetadata = tma ?? {
+        address,
+        name: null,
+        symbol: null,
+        logo: null,
+        decimals: null,
+      };
+
+      const tusdprice = tokensPrices.find((price) => price.address === address);
+      const tokenUSDPrice = tusdprice ?? {
+        address,
+        usdPrice: undefined,
+      };
+      const tb = tokenBalances.tokenBalances.find(
+        (token) => getAddress(token.contractAddress) === address,
+      );
+      const balance = tb ?? {
+        contractAddress: address,
+        tokenBalance: "0",
+      };
+
+      const usdBalance = calculateUsdBalance(
+        balance.tokenBalance,
+        tokenMetadata.decimals,
+        tokenUSDPrice.usdPrice,
+      );
+      return {
+        address,
+        name: tokenMetadata.name,
+        symbol: tokenMetadata.symbol,
+        logo: tokenMetadata.logo,
+        decimals: tokenMetadata.decimals,
+        usdPrice: tokenUSDPrice.usdPrice,
+        usdPriceFrmt: formatUSDValue(Number(tokenUSDPrice.usdPrice)),
+        usdBalance,
+        usdBalanceFrmt: formatUSDValue(usdBalance),
+        balance: balance.tokenBalance,
+      };
+    });
+  } catch (error) {
+    console.error(`Failed to fetch token data for address ${address} on chain ${chainId}`, error);
+    return [];
+  }
 }
