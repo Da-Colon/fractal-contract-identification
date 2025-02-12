@@ -39,7 +39,7 @@ export function getFactories(chainId: Number): { address: Address; deploymentBlo
           deploymentBlock: 36581177n,
         },
       ];
-    case 8543:
+    case 8453:
       return [
         {
           address: "0x31Bf73048056fe947B827C0Fe159ACcB5Ae30237",

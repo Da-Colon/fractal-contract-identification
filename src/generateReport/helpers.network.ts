@@ -26,7 +26,7 @@ export function getNetworkConfig() {
       chain,
       alchemyUrl: `https://eth-${chain.name === "Base" ? "b" : chain.name}.g.alchemy.com/v2`,
       factories: getFactories(chainId),
-      isTestnet: chain.name !== "Ethereum",
+      isTestnet: !!chain.testnet,
     };
   });
 }
