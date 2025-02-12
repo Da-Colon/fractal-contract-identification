@@ -1,4 +1,4 @@
-import { ZodiacModuleProxyFactoryAbi } from "@/abis/ZodiacModuleProxyFactoryAbi";
+import { ZodiacModuleProxyFactoryAbi } from "../abis/ZodiacModuleProxyFactoryAbi";
 import type { PublicClient, Address } from "viem";
 import type { ContractType } from "./types.contract";
 import { defaultContractType, contractTests } from "./variables.common";
