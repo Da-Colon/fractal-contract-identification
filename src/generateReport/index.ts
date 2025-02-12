@@ -4,7 +4,7 @@ import { SENTINEL_ADDRESS } from "./variables.common";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
 import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
 import { formatUSDValue, getERC20TokenData } from "./helpers.token";
-import type { ContractType } from "./types.contract";
+import { getContractType, type ContractType } from "./types.contract";
 
 interface DAOData {
   address: Address;
@@ -145,11 +145,16 @@ async function main() {
     daoData.map((dao) => ({
       address: dao.address,
       network: dao.network,
-      ...dao.strategies.map((strategy) => ({
-        [`${strategy.type}`]: strategy.type,
-      })),
       totalTokenBalance: dao.totalTokenBalance,
       tokenCount: dao.tokens.length,
+      ...dao.strategies.reduce(
+        (acc, strategy) => {
+          const type = getContractType(strategy.type);
+          acc[type] = type;
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
     })),
   );
 }
