@@ -110,6 +110,7 @@ export async function getERC20TokenData(address: Address, chainId: number) {
       tokenUSDPrice.usdPrice,
     );
     return {
+      address,
       name: tokenMetadata.name,
       symbol: tokenMetadata.symbol,
       logo: tokenMetadata.logo,
