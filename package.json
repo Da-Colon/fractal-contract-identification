@@ -1,9 +1,6 @@
 {
-  "name": "fractal-contract-identification",
+  "name": "decent-report",
   "scripts": {
-    "identify:all": "vite-node src/identify-contracts.ts --networks=all",
-    "identify:testnets": "vite-node src/identify-contracts.ts --networks=testnets",
-    "identify:mainnets": "vite-node src/identify-contracts.ts --networks=mainnets",
     "report:all": "vite-node src/generateReport --networks=all",
     "report:testnets": "vite-node src/generateReport --networks=testnets",
     "report:mainnets": "vite-node src/generateReport --networks=mainnets"
@@ -12,7 +9,6 @@
     "@fractal-framework/fractal-contracts": "^1.4.2",
     "alchemy-sdk": "^3.5.2",
     "lodash.camelcase": "^4.3.0",
-    "moralis": "^2.27.2",
     "viem": "^2.21.38",
     "vite-node": "^2.1.4"
   },
