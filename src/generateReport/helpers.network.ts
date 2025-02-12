@@ -19,12 +19,29 @@ export function filterNetworks(networks: NetworkConfig[], filter: string): Netwo
   }
 }
 
+function getAlchemyUrl(chainId: number): string {
+  switch (chainId) {
+    case 1:
+      return "https://eth-mainnet.g.alchemy.com/v2";
+    case 11155111:
+      return "https://eth-sepolia.g.alchemy.com/v2";
+    case 10:
+      return "https://opt-mainnet.g.alchemy.com/v2";
+    case 137:
+      return "https://polygon-mainnet.g.alchemy.com/v2";
+    case 8543:
+      return "https://base-mainnet.g.alchemy.com/v2";
+    default:
+      throw new Error(`Unsupported chain ID: ${chainId}`);
+  }
+}
+
 export function getNetworkConfig() {
   return [base, optimism, polygon, mainnet, sepolia].map((chain) => {
     const chainId = chain.id;
     return {
       chain,
-      alchemyUrl: `https://eth-${chain.name === "Base" ? "b" : chain.name}.g.alchemy.com/v2`,
+      alchemyUrl: getAlchemyUrl(chainId),
       factories: getFactories(chainId),
       isTestnet: !!chain.testnet,
     };
