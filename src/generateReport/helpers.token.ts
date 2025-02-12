@@ -82,7 +82,6 @@ export function calculateUsdBalance(
   decimals: number | null,
   usdPrice?: string,
 ) {
-  // If no USD price is provided, we cannot compute a balance.
   if (usdPrice == undefined || tokenBalance === null || decimals === null) return;
 
   const humanReadableBalanceStr = formatUnits(BigInt(tokenBalance), decimals);
