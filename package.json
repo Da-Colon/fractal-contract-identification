@@ -1,9 +1,9 @@
 {
   "name": "decent-report",
   "scripts": {
-    "report:all": "vite-node src/generateReport --networks=all",
-    "report:testnets": "vite-node src/generateReport --networks=testnets",
-    "report:mainnets": "vite-node src/generateReport --networks=mainnets"
+    "report:all": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=all",
+    "report:testnets": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=testnets",
+    "report:mainnets": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=mainnets"
   },
   "dependencies": {
     "@fractal-framework/fractal-contracts": "^1.4.2",

@@ -56,19 +56,44 @@ async function getTokenMetadata(client: Alchemy, tokenAddresses: Address[]) {
     }),
   );
 }
-
+const tokenPriceCache = new Map<string, { usdPrice?: string; timestamp: number }>();
 async function getTokenPrices(client: Alchemy, tokenAddresses: Address[], network: Network) {
   try {
+    const cachedPrices = tokenAddresses.map((address) => {
+      const cachedPrice = tokenPriceCache.get(address);
+      if (cachedPrice && Date.now() - cachedPrice.timestamp < 60 * 60 * 1000) {
+        return {
+          address,
+          usdPrice: cachedPrice.usdPrice,
+        };
+      }
+      return {
+        address,
+        usdPrice: undefined,
+      };
+    });
     const rates = await client.prices.getTokenPriceByAddress(
       tokenAddresses.map((address) => ({
         address,
         network,
       })),
     );
-    return rates.data.map((rate) => ({
-      address: getAddress(rate.address),
-      usdPrice: rate.prices.find((price) => price.currency === "usd")?.value,
-    }));
+    for (const rate of rates.data) {
+      const cachedPrice = tokenPriceCache.get(rate.address);
+      if (!cachedPrice || Date.now() - cachedPrice.timestamp >= 60 * 60 * 1000) {
+        tokenPriceCache.set(rate.address, {
+          usdPrice: rate.prices.find((price) => price.currency === "usd")?.value,
+          timestamp: Date.now(),
+        });
+      }
+    }
+    return tokenAddresses.map((address) => {
+      const cachedPrice = cachedPrices.find((price) => price.address === address);
+      return {
+        address,
+        usdPrice: cachedPrice?.usdPrice,
+      };
+    });
   } catch (error) {
     console.error("Failed to fetch token prices:", {
       network,

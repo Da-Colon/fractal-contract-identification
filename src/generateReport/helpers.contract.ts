@@ -217,7 +217,6 @@ export async function getDAOAddressFromKeyValuePairsContract(
       };
     })
     .filter((log) => !!log)
-    .filter((log) => log.key === "daoName")
     .filter(
       (log, index, self) =>
         index === self.findIndex((l) => l.daoAddress === log.daoAddress && l.key === log.key),

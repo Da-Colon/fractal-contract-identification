@@ -14,22 +14,20 @@ export function formatDAOData(daoData: DAOData[]) {
       Network: dao.network,
       Balance: dao.totalTokenBalance,
     };
-    if (dao.governanceType === "Azorius") {
-      return {
-        ...daoMain,
-        ...dao.strategies.reduce(
+    const strategies = dao.strategies.length
+      ? dao.strategies.reduce(
           (acc, strategy, index) => {
             const type = getContractType(strategy.type);
             acc[`Strategy ${index}`] = type;
             return acc;
           },
           {} as Record<string, string>,
-        ),
-      };
-    }
+        )
+      : {};
+
     return {
       ...daoMain,
-      owners: dao.owners.join(", "),
+      ...strategies,
     };
   });
 }

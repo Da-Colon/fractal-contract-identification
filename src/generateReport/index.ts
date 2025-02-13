@@ -9,10 +9,6 @@ import { GenerateReportLogs } from "../logging/LogMessage";
 import SafeApiKit from "@safe-global/api-kit";
 import type { DAOData } from "./types.common";
 import { formatDAOData } from "./helpers.common";
-process.on("warning", (e) => {
-  if (e.name === "DeprecationWarning") return;
-  console.warn(e);
-});
 
 async function main() {
   const networksFilter = parseNetworksArg();
@@ -40,6 +36,10 @@ async function main() {
     const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(client);
     logs.updateNetworkSearch(`Found ${daoKeyValueDatas.length} DAOs`, network.chain.name);
     for (const daoKeyValueData of daoKeyValueDatas) {
+      logs.updateNetworkSearch(
+        `Gathering DAO Info: ${daoKeyValueData.daoName}`,
+        daoKeyValueData.daoAddress,
+      );
       // get safe info
       const safeInfo = await safeClient.getSafeInfo(daoKeyValueData.daoAddress);
       const modules = safeInfo.modules;
@@ -57,9 +57,11 @@ async function main() {
         }
       }
       const [azoriusModule] = decentModules.filter((module) => module.type.isModuleAzorius);
+      const governanceType = azoriusModule ? "Azorius" : "Multisig";
+      logs.updateNetworkSearch(`Identified as ${governanceType}`, daoKeyValueData.daoAddress);
 
       const azoriusStrategies: { address: Address; type: ContractType }[] = [];
-      if (azoriusModule) {
+      if (governanceType === "Azorius") {
         const [s, ns] = await client.readContract({
           address: azoriusModule.address,
           abi: abis.Azorius,
@@ -85,13 +87,17 @@ async function main() {
       const totalTokenBalance = formatUSDValue(
         tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0),
       );
+      logs.updateNetworkSearch(
+        `DAO Treasury holds: ${totalTokenBalance}`,
+        daoKeyValueData.daoAddress,
+      );
 
       daoData.push({
         address: daoKeyValueData.daoAddress,
         name: daoKeyValueData.daoName,
         owners,
         guard,
-        governanceType: azoriusModule ? "Azorius" : "Multisig",
+        governanceType,
         network: network.chain.name,
         strategies: azoriusStrategies,
         totalTokenBalance,
@@ -104,9 +110,7 @@ async function main() {
           name: token.name,
         })),
       });
-      setTimeout(() => {}, 500);
     }
-    setTimeout(() => {}, 500);
   }
 
   logs.finishNetworkSearch();
