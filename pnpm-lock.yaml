@@ -8,9 +8,18 @@ dependencies:
   '@fractal-framework/fractal-contracts':
     specifier: ^1.4.2
     version: 1.4.2(@nomicfoundation/hardhat-chai-matchers@2.0.8)(@nomicfoundation/hardhat-ignition-ethers@0.15.9)(@nomicfoundation/hardhat-network-helpers@1.0.12)(@nomicfoundation/hardhat-verify@2.0.12)(@typechain/ethers-v6@0.5.1)(@typechain/hardhat@9.1.0)(@types/chai@4.3.20)(@types/mocha@10.0.10)(@types/node@22.8.6)(ethers@6.13.5)(hardhat-gas-reporter@1.0.10)(solidity-coverage@0.8.14)(ts-node@10.9.2)(typechain@8.3.2)(typescript@5.7.2)
+  '@types/cli-progress':
+    specifier: ^3.11.6
+    version: 3.11.6
   alchemy-sdk:
     specifier: ^3.5.2
     version: 3.5.2
+  ansis:
+    specifier: ^3.12.0
+    version: 3.12.0
+  cli-progress:
+    specifier: ^3.12.0
+    version: 3.12.0
   lodash.camelcase:
     specifier: ^4.3.0
     version: 4.3.0
@@ -1493,6 +1502,12 @@ packages:
     resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
     dev: false
 
+  /@types/cli-progress@3.11.6:
+    resolution: {integrity: sha512-cE3+jb9WRlu+uOSAugewNpITJDt1VF8dHOopPO4IABFc3SXYL5WE/+PTz/FCdZRRfIujiWW3n3aMbv1eIGVRWA==}
+    dependencies:
+      '@types/node': 22.8.6
+    dev: false
+
   /@types/concat-stream@1.6.1:
     resolution: {integrity: sha512-eHE4cQPoj6ngxBZMvVf6Hw7Mh4jMW4U9lpGmS5GBPB9RYxlFg+CHaVN7ErNY4W9XfLIEn20b4VDYaIrbq0q4uA==}
     dependencies:
@@ -1871,6 +1886,11 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       color-convert: 2.0.1
+    dev: false
+
+  /ansis@3.12.0:
+    resolution: {integrity: sha512-SxhlInpMkv9QCyI2yHyrhVrTF8dH93M/S86DT5f9brFgr92uJLOCg0RNmtx3YKWKcRmNAaU+gyUfHMdUiqxvFw==}
+    engines: {node: '>=14'}
     dev: false
 
   /antlr4ts@0.5.0-alpha.4:
@@ -2319,6 +2339,13 @@ packages:
   /cli-boxes@2.2.1:
     resolution: {integrity: sha512-y4coMcylgSCdVinjiDBuR8PCC2bLjyGTwEmPb9NHR/QaNU6EUOXcTY/s6VjGMD6ENSEaeQYHCY0GNGS5jfMwPw==}
     engines: {node: '>=6'}
+    dev: false
+
+  /cli-progress@3.12.0:
+    resolution: {integrity: sha512-tRkV3HJ1ASwm19THiiLIXLO7Im7wlTuKnvkYaTkyoAPefqjNg7W7DHKUlGRxy9vxDvbyCYQkQozvptuMkGCg8A==}
+    engines: {node: '>=4'}
+    dependencies:
+      string-width: 4.2.3
     dev: false
 
   /cli-table3@0.5.1:

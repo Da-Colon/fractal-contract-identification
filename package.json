@@ -7,7 +7,10 @@
   },
   "dependencies": {
     "@fractal-framework/fractal-contracts": "^1.4.2",
+    "@types/cli-progress": "^3.11.6",
     "alchemy-sdk": "^3.5.2",
+    "ansis": "^3.12.0",
+    "cli-progress": "^3.12.0",
     "lodash.camelcase": "^4.3.0",
     "viem": "^2.21.38",
     "vite-node": "^2.1.4"

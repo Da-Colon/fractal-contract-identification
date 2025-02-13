@@ -5,7 +5,7 @@ import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.ne
 import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
 import { formatUSDValue, getERC20TokenData } from "./helpers.token";
 import { getContractType, type ContractType } from "./types.contract";
-
+import { GenerateReportLogs } from "../logging/LogMessage";
 interface DAOData {
   address: Address;
   network: string;
@@ -25,22 +25,17 @@ interface DAOData {
 }
 
 async function main() {
-  console.log("Generating report...");
   const networksFilter = parseNetworksArg();
   const filteredNetworks = filterNetworks(getNetworkConfig(), networksFilter);
 
+  const logs = new GenerateReportLogs();
+
   const daoData: DAOData[] = [];
 
-  console.log(`
-    =================================================================
-    Generating DAO reports for ${filteredNetworks.map((n) => n.chain.name).join(", ")} networks:
-    =================================================================`);
-  for (const network of filteredNetworks) {
-    console.log(`
-      =================================================================
-      Starting to gather data for ${network.chain.name}
-      =================================================================`);
+  logs.generateReportStart(filteredNetworks.map((n) => n.chain.name));
+  logs.startNetworkSearch(filteredNetworks.length);
 
+  for (const network of filteredNetworks) {
     // get the client
     const client = createPublicClient({
       chain: network.chain,
@@ -58,12 +53,7 @@ async function main() {
       azoriusModuleMasterCopyAddress[1] as Address,
       network.factories,
     );
-
-    console.log(`
-      =================================================================
-      Found ${azoriusInstances.length} Azorius module instances
-      =================================================================`);
-
+    logs.updateNetworkSearch();
     // get owner of each instance (which is the DAO)
     for (const instance of azoriusInstances) {
       const daoAddress = await client.readContract({
@@ -71,10 +61,6 @@ async function main() {
         abi: abis.Azorius,
         functionName: "owner",
       });
-      console.log(`
-        =================================================================
-        Found DAO at ${daoAddress}
-        =================================================================`);
 
       const [s, ns] = await client.readContract({
         address: instance,
@@ -83,7 +69,7 @@ async function main() {
         args: [SENTINEL_ADDRESS, 3n],
       });
 
-      // identify each of the DAO's strategies
+      // get the identify each of the DAO's strategies
       const strategies = await Promise.all(
         [...s, ns]
           .filter((strategy) => strategy !== SENTINEL_ADDRESS && strategy !== zeroAddress)
@@ -95,21 +81,10 @@ async function main() {
           }),
       );
 
-      console.log(`
-        =================================================================
-        Found ${strategies.length} strategies for ${daoAddress}
-        =================================================================`);
-
       const tokensData = await getERC20TokenData(daoAddress, client.chain.id);
       const totalTokenBalance = formatUSDValue(
         tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0),
       );
-
-      console.log(`
-        =================================================================
-        Found ${tokensData.length} tokens for ${daoAddress} 
-        Total Value ${totalTokenBalance}
-        =================================================================`);
 
       daoData.push({
         address: daoAddress,
@@ -129,17 +104,7 @@ async function main() {
     }
   }
 
-  console.log(`
-    =================================================================
-    Finished gathering data for ${daoData.length} DAOs
-    =================================================================`);
-
-  // wait for 5 seconds
-  setTimeout(() => {}, 5000);
-  console.log(`
-    =================================================================
-    Generating report...
-    =================================================================`);
+  logs.finishNetworkSearch();
 
   console.table(
     daoData.map((dao) => ({
