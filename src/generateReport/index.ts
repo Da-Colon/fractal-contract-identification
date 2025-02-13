@@ -3,12 +3,13 @@ import { type Address, createPublicClient, http, zeroAddress } from "viem";
 import { SENTINEL_ADDRESS } from "./variables.common";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
 import { getDAOAddressFromKeyValuePairsContract, identifyContract } from "./helpers.contract";
-import { formatUSDValue, getERC20TokenData } from "./helpers.token";
+import { formatUSDValue, getERC20TokenData, getTokenPrices } from "./helpers.token";
 import { type ContractType } from "./types.contract";
 import { GenerateReportLogs } from "../logging/LogMessage";
 import SafeApiKit from "@safe-global/api-kit";
 import type { DAOData } from "./types.common";
 import { formatDAOData } from "./helpers.common";
+import { Alchemy, Network } from "alchemy-sdk";
 
 async function main() {
   const networksFilter = parseNetworksArg();
@@ -34,10 +35,12 @@ async function main() {
 
     // get all dao created via Decent dApp via KeyValuePairs
     const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(client);
-    logs.updateNetworkSearch(`Found ${daoKeyValueDatas.length} DAOs`, network.chain.name);
+    logs.updateNetworkSearch("Found", `${daoKeyValueDatas.length} DAOs`, network.chain.name);
+
     for (const daoKeyValueData of daoKeyValueDatas) {
       logs.updateNetworkSearch(
-        `Gathering DAO Info: ${daoKeyValueData.daoName}`,
+        "Gathering DAO Info",
+        daoKeyValueData.daoName,
         daoKeyValueData.daoAddress,
       );
       // get safe info
@@ -58,7 +61,7 @@ async function main() {
       }
       const [azoriusModule] = decentModules.filter((module) => module.type.isModuleAzorius);
       const governanceType = azoriusModule ? "Azorius" : "Multisig";
-      logs.updateNetworkSearch(`Identified as ${governanceType}`, daoKeyValueData.daoAddress);
+      logs.updateNetworkSearch("Governance Type", governanceType, daoKeyValueData.daoAddress);
 
       const azoriusStrategies: { address: Address; type: ContractType }[] = [];
       if (governanceType === "Azorius") {
@@ -87,10 +90,7 @@ async function main() {
       const totalTokenBalance = formatUSDValue(
         tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0),
       );
-      logs.updateNetworkSearch(
-        `DAO Treasury holds: ${totalTokenBalance}`,
-        daoKeyValueData.daoAddress,
-      );
+      logs.updateNetworkSearch("DAO Treasury holds", totalTokenBalance, daoKeyValueData.daoAddress);
 
       daoData.push({
         address: daoKeyValueData.daoAddress,

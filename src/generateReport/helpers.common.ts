@@ -6,10 +6,14 @@ export function combineAbis(...abisToCombine: Abi[]): Abi {
   return abisToCombine.flat();
 }
 
+export const createAddressSubstring = (address: string) => {
+  return `${address.substring(0, 6)}...${address.slice(-4)}`;
+};
+
 export function formatDAOData(daoData: DAOData[]) {
   return daoData.map((dao) => {
     const daoMain = {
-      "Dao Address": dao.address,
+      "Dao Address": createAddressSubstring(dao.address),
       Governance: dao.governanceType,
       Network: dao.network,
       Balance: dao.totalTokenBalance,

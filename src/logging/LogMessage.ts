@@ -8,8 +8,8 @@ export class LogMessage {
 
   formatTitle(title: string) {
     return `
-        ${ansis.bold(ansis.blue(title))}
-        ${LogMessage.borders.default}`;
+${ansis.bold(ansis.blue(title))}
+${LogMessage.borders.default}`;
   }
 }
 
@@ -26,9 +26,9 @@ ${networks.map((name) => `- ${name}`).join("\n")}
 ${this.formatTitle(`\n\nSearching Network: ${networkName}`)}
 `);
   }
-  updateNetworkSearch(message: string, networkName: string): void {
+  updateNetworkSearch(label: string, data: string | null | undefined, networkName: string): void {
     const progress = this.progressMap.get(networkName) ?? 1;
-    console.log(`\n${"⭐️ ".repeat(progress)} ` + message);
+    console.log(`\n${"⭐️".repeat(progress)} ${ansis.blue(label)}: ${ansis.green(data ?? "--")}`);
     this.progressMap.set(networkName, progress + 1);
   }
 
