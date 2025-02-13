@@ -175,6 +175,7 @@ export async function getInstancesForMasterCopy(
     .map((log) => log.args.proxy as Address);
 }
 
+// @dev depreciated for now; don't delete
 export async function getAzoriusModuleInstances(client: PublicClient, network: NetworkConfig) {
   // get the azorius module master copy address
   const azoriusModuleMasterCopyAddress = Object.entries(
