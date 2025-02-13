@@ -12,7 +12,8 @@ export interface DAOData {
     address: Address;
     type: ContractType;
   }[];
-  totalTokenBalance: string;
+  totalTokenBalance: number;
+  totalTokenBalanceFrmt: string;
   tokens: {
     address: Address;
     symbol: string | null;

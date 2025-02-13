@@ -3,13 +3,12 @@ import { type Address, createPublicClient, http, zeroAddress } from "viem";
 import { SENTINEL_ADDRESS } from "./variables.common";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
 import { getDAOAddressFromKeyValuePairsContract, identifyContract } from "./helpers.contract";
-import { formatUSDValue, getERC20TokenData, getTokenPrices } from "./helpers.token";
+import { formatUSDValue, getERC20TokenData } from "./helpers.token";
 import { type ContractType } from "./types.contract";
 import { GenerateReportLogs } from "../logging/LogMessage";
 import SafeApiKit from "@safe-global/api-kit";
 import type { DAOData } from "./types.common";
 import { formatDAOData } from "./helpers.common";
-import { Alchemy, Network } from "alchemy-sdk";
 
 async function main() {
   const networksFilter = parseNetworksArg();
@@ -87,10 +86,17 @@ async function main() {
       }
 
       const tokensData = await getERC20TokenData(daoKeyValueData.daoAddress, client.chain.id);
-      const totalTokenBalance = formatUSDValue(
-        tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0),
+      const totalTokenBalance = tokensData.reduce(
+        (acc, token) => acc + (token?.usdBalance ?? 0),
+        0,
       );
-      logs.updateNetworkSearch("DAO Treasury holds", totalTokenBalance, daoKeyValueData.daoAddress);
+
+      const totalTokenBalanceFrmt = formatUSDValue(totalTokenBalance);
+      logs.updateNetworkSearch(
+        "DAO Treasury holds",
+        totalTokenBalanceFrmt,
+        daoKeyValueData.daoAddress,
+      );
 
       daoData.push({
         address: daoKeyValueData.daoAddress,
@@ -101,6 +107,7 @@ async function main() {
         network: network.chain.name,
         strategies: azoriusStrategies,
         totalTokenBalance,
+        totalTokenBalanceFrmt,
         tokens: tokensData.map((token) => ({
           address: token.address,
           symbol: token.symbol,
@@ -114,6 +121,26 @@ async function main() {
   }
 
   logs.finishNetworkSearch();
+
+  console.table(
+    filteredNetworks.map((n) => {
+      const daoOnNetwork = daoData.filter((d) => d.network === n.chain.name);
+      const totalBalance = daoOnNetwork.reduce(
+        (acc, dao) => acc + Number(dao.totalTokenBalance),
+        0,
+      );
+      const totalUSD = formatUSDValue(totalBalance);
+      const totalMultisigs = daoOnNetwork.filter((d) => d.governanceType === "Multisig").length;
+      const totalAzorius = daoOnNetwork.filter((d) => d.governanceType === "Azorius").length;
+      return {
+        Network: n.chain.name,
+        DAOs: daoOnNetwork.length,
+        "Total USD": totalUSD,
+        Multisigs: totalMultisigs,
+        Azorius: totalAzorius,
+      };
+    }),
+  );
 
   console.table(formatDAOData(daoData));
 }
