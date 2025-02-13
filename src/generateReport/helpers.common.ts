@@ -14,6 +14,7 @@ export function formatDAOData(daoData: DAOData[]) {
   return daoData.map((dao) => {
     const daoMain = {
       "Dao Address": createAddressSubstring(dao.address),
+      "Dao Name": dao.name,
       Governance: dao.governanceType,
       Network: dao.network,
       Balance: dao.totalTokenBalance,
