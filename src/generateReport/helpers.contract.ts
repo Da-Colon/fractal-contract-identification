@@ -190,7 +190,9 @@ export async function getAzoriusModuleInstances(client: PublicClient, network: N
   );
 }
 
-export async function getDAOAddressFromKeyValuePairsContract(client: PublicClient) {
+export async function getDAOAddressFromKeyValuePairsContract(
+  client: PublicClient,
+): Promise<Address[]> {
   const keyValuePairs = getKeyValuePairContract(client.chain!.id);
   const logs = await client.getContractEvents({
     address: keyValuePairs.address,

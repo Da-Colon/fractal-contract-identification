@@ -33,9 +33,9 @@ export class LogMessage {
 export class GenerateReportLogs extends LogMessage {
   generateReportStart(networks: string[]) {
     console.log(`
-      ${this.formatTitle("Generating DAO reports for networks:")}
-      ${networks.map((name) => `- ${name}`).join("\n")}
-      `);
+${this.formatTitle("Generating DAO reports for networks:")}
+${networks.map((name) => `- ${name}`).join("\n")}
+`);
   }
 
   startNetworkSearch(networkLength: number) {

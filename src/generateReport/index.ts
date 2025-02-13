@@ -4,27 +4,11 @@ import { SENTINEL_ADDRESS } from "./variables.common";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
 import { getDAOAddressFromKeyValuePairsContract, identifyContract } from "./helpers.contract";
 import { formatUSDValue, getERC20TokenData } from "./helpers.token";
-import { getContractType, type ContractType } from "./types.contract";
+import { type ContractType } from "./types.contract";
 import { GenerateReportLogs } from "../logging/LogMessage";
 import SafeApiKit from "@safe-global/api-kit";
-interface DAOData {
-  address: Address;
-  governanceType: "Azorius" | "Multisig";
-  network: string;
-  strategies: {
-    address: Address;
-    type: ContractType;
-  }[];
-  totalTokenBalance: string;
-  tokens: {
-    address: Address;
-    symbol: string | null;
-    usdBalance: number | undefined;
-    usdPrice: string | undefined;
-    logo: string | null;
-    name: string | null;
-  }[];
-}
+import type { DAOData } from "./types.common";
+import { formatDAOData } from "./helpers.common";
 
 async function main() {
   const networksFilter = parseNetworksArg();
@@ -50,6 +34,7 @@ async function main() {
 
     // get all dao created via Decent dApp via KeyValuePairs
     const daoAddresses = await getDAOAddressFromKeyValuePairsContract(client);
+    logs.updateNetworkSearch();
     for (const daoAddress of daoAddresses) {
       // get safe info
       const safeInfo = await safeClient.getSafeInfo(daoAddress);
@@ -97,10 +82,10 @@ async function main() {
         tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0),
       );
 
-      logs.updateNetworkSearch();
-
       daoData.push({
         address: daoAddress,
+        owners,
+        guard,
         governanceType: azoriusModule ? "Azorius" : "Multisig",
         network: network.chain.name,
         strategies: azoriusStrategies,
@@ -114,27 +99,14 @@ async function main() {
           name: token.name,
         })),
       });
-      setTimeout(() => {}, 300);
+      setTimeout(() => {}, 500);
     }
+    setTimeout(() => {}, 500);
   }
 
   logs.finishNetworkSearch();
-  console.table(
-    daoData.map((dao) => ({
-      address: dao.address,
-      network: dao.network,
-      totalTokenBalance: dao.totalTokenBalance,
-      tokenCount: dao.tokens.length,
-      ...dao.strategies.reduce(
-        (acc, strategy, index) => {
-          const type = getContractType(strategy.type);
-          acc[`Strategy ${index}`] = type;
-          return acc;
-        },
-        {} as Record<string, string>,
-      ),
-    })),
-  );
+
+  console.table(formatDAOData(daoData));
 }
 
 main();
