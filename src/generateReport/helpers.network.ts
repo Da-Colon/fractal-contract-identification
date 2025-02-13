@@ -47,3 +47,9 @@ export function getNetworkConfig() {
     };
   });
 }
+
+export function getSpecificNetworkConfig(chainId: number) {
+  const network = getNetworkConfig().find((n) => n.chain.id === chainId);
+  if (!network) throw new Error(`Network with chain ID ${chainId} not found`);
+  return network;
+}

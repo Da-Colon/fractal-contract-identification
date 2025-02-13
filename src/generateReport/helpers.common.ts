@@ -13,11 +13,11 @@ export const createAddressSubstring = (address: string) => {
 export function formatDAOData(daoData: DAOData[]) {
   return daoData.map((dao) => {
     const daoMain = {
-      "Dao Address": createAddressSubstring(dao.address),
+      "Dao Address": dao.address,
       "Dao Name": dao.name,
       Governance: dao.governanceType,
       Network: dao.network,
-      Balance: dao.totalTokenBalance,
+      Balance: dao.totalTokenBalanceFrmt,
     };
     const strategies = dao.strategies.length
       ? dao.strategies.reduce(

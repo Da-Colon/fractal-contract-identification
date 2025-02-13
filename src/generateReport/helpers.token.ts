@@ -116,7 +116,7 @@ export function calculateUsdBalance(
 }
 
 export function formatUSDValue(value: number | undefined) {
-  if (!value) return "---";
+  if (!value) return "--";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

@@ -23,7 +23,7 @@ ${networks.map((name) => `- ${name}`).join("\n")}
 
   startNetworkSearch(networkName: string) {
     console.log(`
-${this.formatTitle(`\n\nSearching Network: ${networkName}`)}
+${this.formatTitle(`Searching Network: ${networkName}`)}
 `);
   }
   updateNetworkSearch(label: string, data: string | null | undefined, networkName: string): void {
