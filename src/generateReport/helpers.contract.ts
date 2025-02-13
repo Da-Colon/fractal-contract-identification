@@ -190,9 +190,14 @@ export async function getAzoriusModuleInstances(client: PublicClient, network: N
   );
 }
 
+type GetDAOAddressFromKeyValuePairsContractReturnType = {
+  daoName: string | null;
+  daoAddress: Address;
+  key: string;
+};
 export async function getDAOAddressFromKeyValuePairsContract(
   client: PublicClient,
-): Promise<Address[]> {
+): Promise<GetDAOAddressFromKeyValuePairsContractReturnType[]> {
   const keyValuePairs = getKeyValuePairContract(client.chain!.id);
   const logs = await client.getContractEvents({
     address: keyValuePairs.address,
@@ -200,5 +205,23 @@ export async function getDAOAddressFromKeyValuePairsContract(
     eventName: "ValueUpdated",
     fromBlock: keyValuePairs.deploymentBlock,
   });
-  return logs.map((log) => log.args.theAddress).filter(Boolean) as Address[];
+  const keyValueInfo = logs
+    .map((log) => {
+      if (!log.args.key || !log.args.theAddress) {
+        return null;
+      }
+      return {
+        key: log.args.key,
+        daoName: log.args.value ?? null,
+        daoAddress: log.args.theAddress,
+      };
+    })
+    .filter((log) => !!log)
+    .filter((log) => log.key === "daoName")
+    .filter(
+      (log, index, self) =>
+        index === self.findIndex((l) => l.daoAddress === log.daoAddress && l.key === log.key),
+    );
+
+  return keyValueInfo;
 }

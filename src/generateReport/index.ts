@@ -9,6 +9,10 @@ import { GenerateReportLogs } from "../logging/LogMessage";
 import SafeApiKit from "@safe-global/api-kit";
 import type { DAOData } from "./types.common";
 import { formatDAOData } from "./helpers.common";
+process.on("warning", (e) => {
+  if (e.name === "DeprecationWarning") return;
+  console.warn(e);
+});
 
 async function main() {
   const networksFilter = parseNetworksArg();
@@ -19,9 +23,9 @@ async function main() {
   const daoData: DAOData[] = [];
 
   logs.generateReportStart(filteredNetworks.map((n) => n.chain.name));
-  logs.startNetworkSearch(filteredNetworks.length);
 
   for (const network of filteredNetworks) {
+    logs.startNetworkSearch(network.chain.name);
     // get the client
     const client = createPublicClient({
       chain: network.chain,
@@ -33,11 +37,11 @@ async function main() {
     });
 
     // get all dao created via Decent dApp via KeyValuePairs
-    const daoAddresses = await getDAOAddressFromKeyValuePairsContract(client);
-    logs.updateNetworkSearch();
-    for (const daoAddress of daoAddresses) {
+    const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(client);
+    logs.updateNetworkSearch(`Found ${daoKeyValueDatas.length} DAOs`, network.chain.name);
+    for (const daoKeyValueData of daoKeyValueDatas) {
       // get safe info
-      const safeInfo = await safeClient.getSafeInfo(daoAddress);
+      const safeInfo = await safeClient.getSafeInfo(daoKeyValueData.daoAddress);
       const modules = safeInfo.modules;
       const owners = safeInfo.owners;
       const guard = safeInfo.guard;
@@ -77,13 +81,14 @@ async function main() {
         azoriusStrategies.push(...strategies);
       }
 
-      const tokensData = await getERC20TokenData(daoAddress, client.chain.id);
+      const tokensData = await getERC20TokenData(daoKeyValueData.daoAddress, client.chain.id);
       const totalTokenBalance = formatUSDValue(
         tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0),
       );
 
       daoData.push({
-        address: daoAddress,
+        address: daoKeyValueData.daoAddress,
+        name: daoKeyValueData.daoName,
         owners,
         guard,
         governanceType: azoriusModule ? "Azorius" : "Multisig",

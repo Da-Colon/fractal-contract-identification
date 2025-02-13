@@ -1,7 +1,6 @@
 import ansis from "ansis";
-import cliProgress from "cli-progress";
 export class LogMessage {
-  processBarMap: Map<string, cliProgress.SingleBar> = new Map();
+  progressMap: Map<string, number> = new Map();
 
   private static borders = {
     default: "═".repeat(70),
@@ -11,22 +10,6 @@ export class LogMessage {
     return `
         ${ansis.bold(ansis.blue(title))}
         ${LogMessage.borders.default}`;
-  }
-  startProgressBar(progressLength: number, name?: string) {
-    const progressBar = new cliProgress.SingleBar(
-      {
-        format: `${name ? `${name} | ` : ""}{bar} {percentage}% | {value}/{total}`,
-        barCompleteChar: "\u2588",
-        barIncompleteChar: "\u2591",
-        hideCursor: true,
-      },
-      cliProgress.Presets.shades_classic,
-    );
-    progressBar.start(progressLength, 0);
-    this.processBarMap.set(name ?? "default", progressBar);
-  }
-  updateProgressBar(value: number, name?: string) {
-    this.processBarMap.get(name ?? "default")?.update(value);
   }
 }
 
@@ -38,13 +21,16 @@ ${networks.map((name) => `- ${name}`).join("\n")}
 `);
   }
 
-  startNetworkSearch(networkLength: number) {
-    this.startProgressBar(networkLength, "Searching Networks");
+  startNetworkSearch(networkName: string) {
+    console.log(`
+${this.formatTitle(`\n\nSearching Network: ${networkName}`)}
+`);
   }
-  updateNetworkSearch(): void {
-    this.processBarMap.get("Searching Networks")?.increment();
+  updateNetworkSearch(message: string, networkName: string): void {
+    const progress = this.progressMap.get(networkName) ?? 0;
+    console.log(`\n${"⭐️".repeat(progress)}` + message);
+    this.progressMap.set(networkName, progress + 1);
   }
-  finishNetworkSearch(): void {
-    this.processBarMap.get("Searching Networks")?.stop();
-  }
+
+  finishNetworkSearch(): void {}
 }
