@@ -3,7 +3,8 @@ import type { PublicClient, Address } from "viem";
 import type { ContractType } from "./types.contract";
 import { defaultContractType, contractTests } from "./variables.common";
 import type { NetworkConfig } from "./types.network";
-import { addresses } from "@fractal-framework/fractal-contracts";
+import { abis, addresses } from "@fractal-framework/fractal-contracts";
+import type { GetContractEventsReturnType } from "viem";
 
 export function getFactories(chainId: Number): { address: Address; deploymentBlock: bigint }[] {
   switch (chainId) {
@@ -63,6 +64,40 @@ export function getFactories(chainId: Number): { address: Address; deploymentBlo
         },
       ];
 
+    default:
+      throw new Error(`Unsupported chain ID: ${chainId}`);
+  }
+}
+
+function getKeyValuePairContract(chainId: number) {
+  // @ts-ignore
+  const address = addresses[chainId.toString()].KeyValuePairs;
+  switch (chainId) {
+    case 1:
+      return {
+        address,
+        deploymentBlock: 17389311n,
+      };
+    case 10:
+      return {
+        address,
+        deploymentBlock: 118640420n,
+      };
+    case 137:
+      return {
+        address,
+        deploymentBlock: 43952879n,
+      };
+    case 8453:
+      return {
+        address,
+        deploymentBlock: 12996645n,
+      };
+    case 11155111:
+      return {
+        address,
+        deploymentBlock: 4916643n,
+      };
     default:
       throw new Error(`Unsupported chain ID: ${chainId}`);
   }
@@ -143,7 +178,7 @@ export async function getInstancesForMasterCopy(
 export async function getAzoriusModuleInstances(client: PublicClient, network: NetworkConfig) {
   // get the azorius module master copy address
   const azoriusModuleMasterCopyAddress = Object.entries(
-    addresses[network.chain.id.toString() as keyof typeof addresses],
+    addresses[client.chain!.id.toString() as keyof typeof addresses],
   ).filter(([name]) => name === "Azorius")[0];
 
   // get all instances of the azorius module
@@ -152,4 +187,15 @@ export async function getAzoriusModuleInstances(client: PublicClient, network: N
     azoriusModuleMasterCopyAddress[1] as Address,
     network.factories,
   );
+}
+
+export async function getDAOAddressFromKeyValuePairsContract(client: PublicClient) {
+  const keyValuePairs = getKeyValuePairContract(client.chain!.id);
+  const logs = await client.getContractEvents({
+    address: keyValuePairs.address,
+    abi: abis.KeyValuePairs,
+    eventName: "ValueUpdated",
+    fromBlock: keyValuePairs.deploymentBlock,
+  });
+  return logs.map((log) => log.args.theAddress).filter(Boolean) as Address[];
 }
