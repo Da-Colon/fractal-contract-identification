@@ -27,7 +27,7 @@ ${this.formatTitle(`\n\nSearching Network: ${networkName}`)}
 `);
   }
   updateNetworkSearch(message: string, networkName: string): void {
-    const progress = this.progressMap.get(networkName) ?? 0;
+    const progress = this.progressMap.get(networkName) ?? 1;
     console.log(`\n${"⭐️ ".repeat(progress)} ` + message);
     this.progressMap.set(networkName, progress + 1);
   }
