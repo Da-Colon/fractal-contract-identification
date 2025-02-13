@@ -57,51 +57,50 @@ async function getTokenMetadata(client: Alchemy, tokenAddresses: Address[]) {
   );
 }
 const tokenPriceCache = new Map<string, { usdPrice?: string; timestamp: number }>();
-async function getTokenPrices(client: Alchemy, tokenAddresses: Address[], network: Network) {
+
+export async function getTokenPrices(client: Alchemy, tokenAddresses: Address[], network: Network) {
   try {
-    const cachedPrices = tokenAddresses.map((address) => {
-      const cachedPrice = tokenPriceCache.get(address);
-      if (cachedPrice && Date.now() - cachedPrice.timestamp < 60 * 60 * 1000) {
-        return {
-          address,
-          usdPrice: cachedPrice.usdPrice,
-        };
+    const result: { address: Address; usdPrice?: string }[] = [];
+    const batchSize = 25;
+
+    for (let i = 0; i < tokenAddresses.length; i += batchSize) {
+      const batchAddresses = tokenAddresses.slice(i, i + batchSize);
+
+      // Determine which addresses need fresh data (i.e., missing or expired cache)
+      const addressesToFetch = batchAddresses.filter((address) => {
+        const cached = tokenPriceCache.get(address);
+        return !cached || Date.now() - cached.timestamp >= 60 * 60 * 1000;
+      });
+
+      if (addressesToFetch.length > 0) {
+        const rates = await client.prices.getTokenPriceByAddress(
+          addressesToFetch.map((address) => ({ address, network })),
+        );
+
+        for (const rate of rates.data) {
+          const usdPrice = rate.prices.find((price) => price.currency === "usd")?.value;
+          tokenPriceCache.set(rate.address, {
+            usdPrice,
+            timestamp: Date.now(),
+          });
+        }
       }
-      return {
-        address,
-        usdPrice: undefined,
-      };
-    });
-    const rates = await client.prices.getTokenPriceByAddress(
-      tokenAddresses.map((address) => ({
-        address,
-        network,
-      })),
-    );
-    for (const rate of rates.data) {
-      const cachedPrice = tokenPriceCache.get(rate.address);
-      if (!cachedPrice || Date.now() - cachedPrice.timestamp >= 60 * 60 * 1000) {
-        tokenPriceCache.set(rate.address, {
-          usdPrice: rate.prices.find((price) => price.currency === "usd")?.value,
-          timestamp: Date.now(),
+
+      // Build results using the updated cache
+      for (const address of batchAddresses) {
+        const cached = tokenPriceCache.get(address);
+        result.push({
+          address,
+          usdPrice: cached?.usdPrice,
         });
       }
     }
-    return tokenAddresses.map((address) => {
-      const cachedPrice = cachedPrices.find((price) => price.address === address);
-      return {
-        address,
-        usdPrice: cachedPrice?.usdPrice,
-      };
-    });
+    return result;
   } catch (error) {
-    console.error("Failed to fetch token prices:", {
-      network,
-    });
+    console.error("Failed to fetch token prices:", { network });
     return [];
   }
 }
-
 export function calculateUsdBalance(
   tokenBalance: string | null,
   decimals: number | null,
