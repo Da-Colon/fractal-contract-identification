@@ -1,12 +1,11 @@
-import { abis, addresses } from "@fractal-framework/fractal-contracts";
-import { type Address, createPublicClient, http, type PublicClient, zeroAddress } from "viem";
+import { abis } from "@fractal-framework/fractal-contracts";
+import { type Address, createPublicClient, http, zeroAddress } from "viem";
 import { SENTINEL_ADDRESS } from "./variables.common";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
-import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
+import { getAzoriusModuleInstances, identifyContract } from "./helpers.contract";
 import { formatUSDValue, getERC20TokenData } from "./helpers.token";
 import { getContractType, type ContractType } from "./types.contract";
 import { GenerateReportLogs } from "../logging/LogMessage";
-import type { NetworkConfig } from "./types.network";
 interface DAOData {
   address: Address;
   network: string;
@@ -23,20 +22,6 @@ interface DAOData {
     logo: string | null;
     name: string | null;
   }[];
-}
-
-async function getAzoriusModuleInstances(client: PublicClient, network: NetworkConfig) {
-  // get the azorius module master copy address
-  const azoriusModuleMasterCopyAddress = Object.entries(
-    addresses[network.chain.id.toString() as keyof typeof addresses],
-  ).filter(([name]) => name === "Azorius")[0];
-
-  // get all instances of the azorius module
-  return getInstancesForMasterCopy(
-    client,
-    azoriusModuleMasterCopyAddress[1] as Address,
-    network.factories,
-  );
 }
 
 async function main() {
