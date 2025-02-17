@@ -125,21 +125,22 @@ export function formatUSDValue(value: number | undefined) {
   }).format(Number(value));
 }
 
-// --------------------------
-// Fallback Providers Module
-// --------------------------
+// New cache for fallback provider results keyed by token symbol.
+const fallbackPriceCache = new Map<string, { usdPrice: string; timestamp: number }>();
 
-// Each fallback provider returns a price (as a string) for a token given its symbol.
+// Helper to check if a cached fallback price is fresh (e.g., within 1 hour)
+function isCacheFresh(cacheEntry: { timestamp: number }): boolean {
+  return Date.now() - cacheEntry.timestamp < 60 * 60 * 1000;
+}
+
 async function getCoinPaprikaPrice(symbol: string): Promise<string | undefined> {
   try {
-    // CoinPaprika provides a free, keyless API
     const res = await fetch("https://api.coinpaprika.com/v1/tickers");
     if (!res.ok) {
       console.error("CoinPaprika API error");
       return undefined;
     }
     const data = await res.json();
-    // Find ticker by symbol (case-insensitive)
     const ticker = data.find((item: any) => item.symbol.toLowerCase() === symbol.toLowerCase());
     return ticker ? ticker.quotes?.USD?.price?.toString() : undefined;
   } catch (error) {
@@ -150,14 +151,12 @@ async function getCoinPaprikaPrice(symbol: string): Promise<string | undefined> 
 
 async function getCoinCapPrice(symbol: string): Promise<string | undefined> {
   try {
-    // CoinCap provides real-time data via a free, keyless API
     const res = await fetch("https://api.coincap.io/v2/assets");
     if (!res.ok) {
       console.error("CoinCap API error");
       return undefined;
     }
     const data = await res.json();
-    // Find asset by symbol (case-insensitive)
     const asset = data.data.find((item: any) => item.symbol.toLowerCase() === symbol.toLowerCase());
     return asset ? asset.priceUsd : undefined;
   } catch (error) {
@@ -166,23 +165,28 @@ async function getCoinCapPrice(symbol: string): Promise<string | undefined> {
   }
 }
 
-// Array of fallback providers (order matters)
 const fallbackProviders: ((symbol: string) => Promise<string | undefined>)[] = [
   getCoinPaprikaPrice,
   getCoinCapPrice,
 ];
 
-// Iterate through fallback providers until a price is found.
 async function getFallbackPrice(symbol: string): Promise<string | undefined> {
+  // Check if we already have a fresh cached value for this symbol.
+  const cached = fallbackPriceCache.get(symbol.toLowerCase());
+  if (cached && isCacheFresh(cached)) {
+    return cached.usdPrice;
+  }
+  // Otherwise, iterate through the fallback providers.
   for (const provider of fallbackProviders) {
     const price = await provider(symbol);
     if (price !== undefined) {
+      // Cache the result for this symbol.
+      fallbackPriceCache.set(symbol.toLowerCase(), { usdPrice: price, timestamp: Date.now() });
       return price;
     }
   }
   return undefined;
 }
-
 export async function getERC20TokenData(address: Address, chainId: number) {
   const client = getAlchemyClient(chainId);
   try {
@@ -193,10 +197,8 @@ export async function getERC20TokenData(address: Address, chainId: number) {
     const tokensMetadata = await getTokenMetadata(client, tokenAddresses);
     const tokensPrices = await getTokenPrices(client, tokenAddresses, getAlchemyNetwork(chainId));
 
-    // Process each token. If Alchemy didn’t return a price, try fallback providers.
     const tokensData = await Promise.all(
       tokenAddresses.map(async (addr) => {
-        // Retrieve metadata (includes symbol) for this token.
         const metadata = tokensMetadata.find((token) => token.address === addr) || {
           address: addr,
           name: null,
@@ -204,18 +206,16 @@ export async function getERC20TokenData(address: Address, chainId: number) {
           logo: null,
           decimals: null,
         };
-        // Get price from Alchemy result.
         let priceEntry = tokensPrices.find((price) => price.address === addr);
-        // If missing, and we have a symbol, try fallback providers.
         if ((!priceEntry || !priceEntry.usdPrice) && metadata.symbol) {
+          // Try the fallback providers, using the symbol.
           const fallbackPrice = await getFallbackPrice(metadata.symbol);
           priceEntry = { address: addr, usdPrice: fallbackPrice };
-          // Optionally, update your cache here:
           if (fallbackPrice) {
+            // Cache this fallback price in the main tokenPriceCache.
             tokenPriceCache.set(addr, { usdPrice: fallbackPrice, timestamp: Date.now() });
           }
         }
-        // Get balance for this token.
         const balanceInfo = tokenBalances.tokenBalances.find(
           (token) => getAddress(token.contractAddress) === addr,
         ) || { contractAddress: addr, tokenBalance: "0" };
