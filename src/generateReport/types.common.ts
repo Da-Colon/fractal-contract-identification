@@ -1,5 +1,4 @@
 import type { Address } from "viem";
-import type { ContractType } from "./types.contract";
 
 export interface DAOData {
   address: Address;
@@ -9,10 +8,7 @@ export interface DAOData {
   owners: Address[];
   guard: Address;
   network: string;
-  strategies: {
-    address: Address;
-    type: ContractType;
-  }[];
+  strategies: ("ERC20-L" | "ERC20-LH" | "ERC721-L" | "ERC721-LH")[];
   totalTokenBalance: number;
   totalTokenBalanceFrmt: string;
   tokens: {

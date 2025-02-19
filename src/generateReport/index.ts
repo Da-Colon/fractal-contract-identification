@@ -8,6 +8,7 @@ import { formatDAOData } from "./helpers.common";
 import { getDAOAddressFromKeyValuePairsContract } from "./helpers.contract.KeyValuePairs";
 import { getAzoriusData } from "./helpers.contract.Azorius";
 import { getSafeData } from "./helpers.safe";
+import { getContractType } from "./types.contract";
 
 async function main() {
   const networksFilter = parseNetworksArg();
@@ -72,7 +73,10 @@ async function main() {
       const proposalCount = !!azoriusModule ? azoriusProposals.length : multisigTransactions.length;
       const votesCount = !!azoriusModule ? azoriusVotesCount : multisigVotesCount;
       const uniqueUsers = Array.from(new Set([...uniqueMultisigUsers, ...uniqueAzoriusUsers]));
-
+      const strategiesTypes = strategies.map(
+        (strategy) =>
+          getContractType(strategy.type) as "ERC20-L" | "ERC20-LH" | "ERC721-L" | "ERC721-LH",
+      );
       daoData.push({
         timeOfSafeCreation,
         address: daoKeyValueData.daoAddress,
@@ -81,7 +85,7 @@ async function main() {
         guard,
         governanceType,
         network: network.chain.name,
-        strategies,
+        strategies: strategiesTypes,
         totalTokenBalance,
         totalTokenBalanceFrmt,
         tokens: tokensData.map((token) => ({
@@ -128,6 +132,7 @@ async function main() {
       };
     }),
   );
+  console.log("🚀 ~ daoData:", daoData);
 
   console.table(formatDAOData(daoData));
 }

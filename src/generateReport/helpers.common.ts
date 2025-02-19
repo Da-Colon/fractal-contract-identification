@@ -22,8 +22,7 @@ export function formatDAOData(daoData: DAOData[]) {
     const strategies = dao.strategies.length
       ? dao.strategies.reduce(
           (acc, strategy, index) => {
-            const type = getContractType(strategy.type);
-            acc[`Strategy ${index}`] = type;
+            acc[`Strategy ${index}`] = strategy;
             return acc;
           },
           {} as Record<string, string>,

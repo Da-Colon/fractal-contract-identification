@@ -21,7 +21,6 @@ export function getContractType(type: ContractType): string {
   if (type.isLinearVotingErc20WithHatsProposalCreation) return "ERC20-LH";
   if (type.isLinearVotingErc721) return "ERC721-L";
   if (type.isLinearVotingErc721WithHatsProposalCreation) return "ERC721-LH";
-
   // leaving here but don't need just part of tests
   if (type.isModuleAzorius) return "Azorius Module";
   if (type.isModuleFractal) return "Fractal Module";
