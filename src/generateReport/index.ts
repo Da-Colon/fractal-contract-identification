@@ -44,6 +44,7 @@ async function main() {
       );
       // get safe info
       const safeInfo = await safeClient.getSafeInfo(daoKeyValueData.daoAddress);
+      const safeCreationInfo = await safeClient.getSafeCreationInfo(daoKeyValueData.daoAddress);
       const modules = safeInfo.modules;
       const owners = safeInfo.owners;
       const guard = safeInfo.guard;
@@ -99,6 +100,7 @@ async function main() {
       );
 
       daoData.push({
+        timeOfCreation: safeCreationInfo.created,
         address: daoKeyValueData.daoAddress,
         name: daoKeyValueData.daoName,
         owners,
@@ -121,6 +123,14 @@ async function main() {
   }
 
   logs.finishNetworkSearch();
+
+  // todo total aggregate treasury amount in all daos, platform wide
+  // todo total aggregate number of proposals in all daos, platform wide
+  // todo total aggregate number of votes in all daos, platform wide
+  // todo total number of unique addresses that have interacted with the platform
+  // todo total amount of $ in airdrops through platform
+  // todo total amount of $ in streams through platform
+  // todo total amount of $ in transfers through platform
 
   console.table(
     filteredNetworks.map((n) => {

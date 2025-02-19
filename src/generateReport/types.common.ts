@@ -3,6 +3,7 @@ import type { ContractType } from "./types.contract";
 
 export interface DAOData {
   address: Address;
+  timeOfCreation: string;
   name: string | null;
   governanceType: "Azorius" | "Multisig";
   owners: Address[];
