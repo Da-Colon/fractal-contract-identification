@@ -16,11 +16,9 @@ export async function getSafeData(
   const allTransactions = [...multisigTransactions.results, ...pendingTransactions.results].filter(
     (tx, index, self) => self.findIndex((t) => t.transactionHash === tx.transactionHash) === index,
   );
-
   const allProposals = allTransactions.map((tx, index) => {
     return {
       proposalId: BigInt(index + 1),
-      proposer: getAddress(tx.proposer as Address),
     };
   });
 

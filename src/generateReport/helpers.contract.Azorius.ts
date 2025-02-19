@@ -163,7 +163,9 @@ export async function getAzoriusData(
     tokensData,
     totalTokenBalance,
     totalTokenBalanceFrmt,
-    azoriusProposals,
+    azoriusProposals: azoriusProposals.map((p) => ({
+      proposalId: p.proposalId,
+    })),
     uniqueAzoriusUsers: uniqueUsers,
     azoriusVotesCount: voteCount,
   };
