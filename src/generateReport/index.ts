@@ -9,6 +9,7 @@ import { getDAOAddressFromKeyValuePairsContract } from "./helpers.contract.KeyVa
 import { getAzoriusData } from "./helpers.contract.Azorius";
 import { getSafeData } from "./helpers.safe";
 import { getContractType } from "./types.contract";
+import { dummyDAOData } from "../ui/mocks.dummyData.daos";
 
 async function main() {
   const networksFilter = parseNetworksArg();
@@ -16,92 +17,94 @@ async function main() {
 
   const logs = new GenerateReportLogs();
 
-  const daoData: DAOData[] = [];
+  const daoData: DAOData[] = networksFilter === "dummy" ? dummyDAOData : [];
 
   logs.generateReportStart(filteredNetworks.map((n) => n.chain.name));
-
-  for (const network of filteredNetworks) {
-    logs.startNetworkSearch(network.chain.name);
-    // get the client
-    const viemClient = createPublicClient({
-      chain: network.chain,
-      transport: http(`${network.alchemyUrl}`),
-    });
-
-    const safeClient = new SafeApiKit({
-      chainId: BigInt(network.chain.id),
-    });
-
-    const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(viemClient);
-    logs.updateNetworkSearch("Found", `${daoKeyValueDatas.length} DAOs`, network.chain.name);
-
-    for (const daoKeyValueData of daoKeyValueDatas) {
-      logs.updateNetworkSearch(
-        "Gathering DAO Info",
-        daoKeyValueData.daoName,
-        daoKeyValueData.daoAddress,
-      );
-
-      const {
-        timeOfSafeCreation,
-        deploymentTransactionHash,
-        owners,
-        guard,
-        modules,
-        multisigTransactions,
-        uniqueMultisigUsers,
-        multisigVotesCount,
-      } = await getSafeData(daoKeyValueData.daoAddress, safeClient, viemClient);
-      const [azoriusModule] = modules.filter((module) => module.type.isModuleAzorius);
-
-      const governanceType = azoriusModule ? "Azorius" : "Multisig";
-      const { strategies, azoriusProposals, uniqueAzoriusUsers, azoriusVotesCount } =
-        await getAzoriusData(deploymentTransactionHash, azoriusModule?.address, viemClient);
-
-      const { tokensData, totalTokenBalance, totalTokenBalanceFrmt } = await getTokenData(
-        daoKeyValueData.daoAddress,
-        viemClient,
-      );
-
-      logs.updateNetworkSearch("Governance Type", governanceType, daoKeyValueData.daoAddress);
-      logs.updateNetworkSearch(
-        "DAO Treasury holds",
-        totalTokenBalanceFrmt,
-        daoKeyValueData.daoAddress,
-      );
-
-      const proposalCount = !!azoriusModule ? azoriusProposals.length : multisigTransactions.length;
-      const votesCount = !!azoriusModule ? azoriusVotesCount : multisigVotesCount;
-      const uniqueUsers = Array.from(new Set([...uniqueMultisigUsers, ...uniqueAzoriusUsers]));
-      const strategiesTypes = strategies.map(
-        (strategy) =>
-          getContractType(strategy.type) as "ERC20-L" | "ERC20-LH" | "ERC721-L" | "ERC721-LH",
-      );
-      daoData.push({
-        timeOfSafeCreation,
-        address: daoKeyValueData.daoAddress,
-        name: daoKeyValueData.daoName,
-        owners,
-        guard,
-        governanceType,
-        network: network.chain.name,
-        strategies: strategiesTypes,
-        totalTokenBalance,
-        totalTokenBalanceFrmt,
-        tokens: tokensData.map((token) => ({
-          address: token.address,
-          symbol: token.symbol,
-          usdBalance: token.usdBalance,
-          usdPrice: token.usdPrice,
-          logo: token.logo,
-          name: token.name,
-        })),
-        proposalCount,
-        uniqueUsers,
-        votesCount,
+  if (networksFilter !== "dummy")
+    for (const network of filteredNetworks) {
+      logs.startNetworkSearch(network.chain.name);
+      // get the client
+      const viemClient = createPublicClient({
+        chain: network.chain,
+        transport: http(`${network.alchemyUrl}`),
       });
+
+      const safeClient = new SafeApiKit({
+        chainId: BigInt(network.chain.id),
+      });
+
+      const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(viemClient);
+      logs.updateNetworkSearch("Found", `${daoKeyValueDatas.length} DAOs`, network.chain.name);
+
+      for (const daoKeyValueData of daoKeyValueDatas) {
+        logs.updateNetworkSearch(
+          "Gathering DAO Info",
+          daoKeyValueData.daoName,
+          daoKeyValueData.daoAddress,
+        );
+
+        const {
+          timeOfSafeCreation,
+          deploymentTransactionHash,
+          owners,
+          guard,
+          modules,
+          multisigTransactions,
+          uniqueMultisigUsers,
+          multisigVotesCount,
+        } = await getSafeData(daoKeyValueData.daoAddress, safeClient, viemClient);
+        const [azoriusModule] = modules.filter((module) => module.type.isModuleAzorius);
+
+        const governanceType = azoriusModule ? "Azorius" : "Multisig";
+        const { strategies, azoriusProposals, uniqueAzoriusUsers, azoriusVotesCount } =
+          await getAzoriusData(deploymentTransactionHash, azoriusModule?.address, viemClient);
+
+        const { tokensData, totalTokenBalance, totalTokenBalanceFrmt } = await getTokenData(
+          daoKeyValueData.daoAddress,
+          viemClient,
+        );
+
+        logs.updateNetworkSearch("Governance Type", governanceType, daoKeyValueData.daoAddress);
+        logs.updateNetworkSearch(
+          "DAO Treasury holds",
+          totalTokenBalanceFrmt,
+          daoKeyValueData.daoAddress,
+        );
+
+        const proposalCount = !!azoriusModule
+          ? azoriusProposals.length
+          : multisigTransactions.length;
+        const votesCount = !!azoriusModule ? azoriusVotesCount : multisigVotesCount;
+        const uniqueUsers = Array.from(new Set([...uniqueMultisigUsers, ...uniqueAzoriusUsers]));
+        const strategiesTypes = strategies.map(
+          (strategy) =>
+            getContractType(strategy.type) as "ERC20-L" | "ERC20-LH" | "ERC721-L" | "ERC721-LH",
+        );
+        daoData.push({
+          timeOfSafeCreation,
+          address: daoKeyValueData.daoAddress,
+          name: daoKeyValueData.daoName,
+          owners,
+          guard,
+          governanceType,
+          network: network.chain.name,
+          strategies: strategiesTypes,
+          totalTokenBalance,
+          totalTokenBalanceFrmt,
+          tokens: tokensData.map((token) => ({
+            address: token.address,
+            symbol: token.symbol,
+            usdBalance: token.usdBalance,
+            usdPrice: token.usdPrice,
+            logo: token.logo,
+            name: token.name,
+          })),
+          proposalCount,
+          uniqueUsers,
+          votesCount,
+        });
+      }
     }
-  }
 
   logs.finishNetworkSearch();
 
@@ -132,7 +135,6 @@ async function main() {
       };
     }),
   );
-  console.log("🚀 ~ daoData:", daoData);
 
   console.table(formatDAOData(daoData));
 }
