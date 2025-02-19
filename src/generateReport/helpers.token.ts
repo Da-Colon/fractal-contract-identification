@@ -1,5 +1,5 @@
 import { Alchemy, Network } from "alchemy-sdk";
-import { getAddress, type Address } from "viem";
+import { getAddress, type Address, type PublicClient } from "viem";
 import { formatUnits } from "viem";
 
 function getAlchemyNetwork(chainId: number) {
@@ -191,7 +191,7 @@ async function getFallbackPrice(symbol: string): Promise<string | undefined> {
   }
   return undefined;
 }
-export async function getERC20TokenData(address: Address, chainId: number) {
+async function getERC20TokenData(address: Address, chainId: number) {
   const client = getAlchemyClient(chainId);
   try {
     const tokenBalances = await client.core.getTokenBalances(address);
@@ -247,4 +247,15 @@ export async function getERC20TokenData(address: Address, chainId: number) {
     console.error(`Failed to fetch token data for address ${address} on chain ${chainId}`, error);
     return [];
   }
+}
+
+export async function getTokenData(daoAddress: Address, viemClient: PublicClient) {
+  const tokensData = await getERC20TokenData(daoAddress, viemClient.chain!.id);
+  const totalTokenBalance = tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0);
+  const totalTokenBalanceFrmt = formatUSDValue(totalTokenBalance);
+  return {
+    tokensData,
+    totalTokenBalance,
+    totalTokenBalanceFrmt,
+  };
 }

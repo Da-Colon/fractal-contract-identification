@@ -3,7 +3,6 @@ import { type PublicClient, type Address, zeroAddress, getAddress, type Hex } fr
 import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
 import type { NetworkConfig } from "./types.network";
 import type { ContractType } from "./types.contract";
-import { getERC20TokenData, formatUSDValue } from "./helpers.token";
 import { SENTINEL_ADDRESS } from "./variables.common";
 
 // ! @note depreciated for now; don't delete
@@ -40,17 +39,6 @@ async function getAzoriusStrategies(azoriusModuleAddress: Address, viemClient: P
         };
       }),
   );
-}
-
-async function getTokenData(daoAddress: Address, viemClient: PublicClient) {
-  const tokensData = await getERC20TokenData(daoAddress, viemClient.chain!.id);
-  const totalTokenBalance = tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0);
-  const totalTokenBalanceFrmt = formatUSDValue(totalTokenBalance);
-  return {
-    tokensData,
-    totalTokenBalance,
-    totalTokenBalanceFrmt,
-  };
 }
 
 async function getProposals(
@@ -122,26 +110,25 @@ async function getAzoriusProposalsData(
 }
 
 export async function getAzoriusData(
-  daoAddress: Address,
   deploymentTransactionHash: Hex,
-  modules: {
-    address: Address;
-    type: ContractType;
-  }[],
+  azoriusModuleAddress: Address | undefined,
   viemClient: PublicClient,
 ) {
-  const [azoriusModule] = modules.filter((module) => module.type.isModuleAzorius);
-  const governanceType = azoriusModule ? "Azorius" : "Multisig";
-
-  const azoriusStrategies: { address: Address; type: ContractType }[] = [];
-  if (governanceType === "Azorius") {
-    azoriusStrategies.push(...(await getAzoriusStrategies(azoriusModule.address, viemClient)));
+  if (!azoriusModuleAddress) {
+    return {
+      strategies: [],
+      azoriusProposals: [],
+      uniqueAzoriusUsers: [],
+      azoriusVotesCount: 0,
+    };
   }
+  const azoriusStrategies: { address: Address; type: ContractType }[] = [];
+  azoriusStrategies.push(...(await getAzoriusStrategies(azoriusModuleAddress, viemClient)));
   const deploymentBlock = await viemClient.getTransaction({
     hash: deploymentTransactionHash,
   });
   const azoriusProposals = await getProposals(
-    azoriusModule.address,
+    azoriusModuleAddress,
     deploymentBlock.blockNumber,
     viemClient,
   );
@@ -152,17 +139,8 @@ export async function getAzoriusData(
     viemClient,
   );
 
-  const { tokensData, totalTokenBalance, totalTokenBalanceFrmt } = await getTokenData(
-    daoAddress,
-    viemClient,
-  );
-
   return {
-    governanceType: governanceType as "Azorius" | "Multisig",
     strategies: azoriusStrategies,
-    tokensData,
-    totalTokenBalance,
-    totalTokenBalanceFrmt,
     azoriusProposals: azoriusProposals.map((p) => ({
       proposalId: p.proposalId,
     })),

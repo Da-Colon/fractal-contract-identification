@@ -1,6 +1,6 @@
 import { createPublicClient, http } from "viem";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
-import { formatUSDValue } from "./helpers.token";
+import { formatUSDValue, getTokenData } from "./helpers.token";
 import { GenerateReportLogs } from "../logging/LogMessage";
 import SafeApiKit from "@safe-global/api-kit";
 import type { DAOData } from "./types.common";
@@ -22,7 +22,7 @@ async function main() {
   for (const network of filteredNetworks) {
     logs.startNetworkSearch(network.chain.name);
     // get the client
-    const client = createPublicClient({
+    const viemClient = createPublicClient({
       chain: network.chain,
       transport: http(`${network.alchemyUrl}`),
     });
@@ -31,7 +31,7 @@ async function main() {
       chainId: BigInt(network.chain.id),
     });
 
-    const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(client);
+    const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(viemClient);
     logs.updateNetworkSearch("Found", `${daoKeyValueDatas.length} DAOs`, network.chain.name);
 
     for (const daoKeyValueData of daoKeyValueDatas) {
@@ -50,22 +50,16 @@ async function main() {
         multisigTransactions,
         uniqueMultisigUsers,
         multisigVotesCount,
-      } = await getSafeData(daoKeyValueData.daoAddress, safeClient, client);
+      } = await getSafeData(daoKeyValueData.daoAddress, safeClient, viemClient);
+      const [azoriusModule] = modules.filter((module) => module.type.isModuleAzorius);
 
-      const {
-        governanceType,
-        totalTokenBalance,
-        totalTokenBalanceFrmt,
-        tokensData,
-        strategies,
-        azoriusProposals,
-        uniqueAzoriusUsers,
-        azoriusVotesCount,
-      } = await getAzoriusData(
+      const governanceType = azoriusModule ? "Azorius" : "Multisig";
+      const { strategies, azoriusProposals, uniqueAzoriusUsers, azoriusVotesCount } =
+        await getAzoriusData(deploymentTransactionHash, azoriusModule?.address, viemClient);
+
+      const { tokensData, totalTokenBalance, totalTokenBalanceFrmt } = await getTokenData(
         daoKeyValueData.daoAddress,
-        deploymentTransactionHash,
-        modules,
-        client,
+        viemClient,
       );
 
       logs.updateNetworkSearch("Governance Type", governanceType, daoKeyValueData.daoAddress);
@@ -74,6 +68,10 @@ async function main() {
         totalTokenBalanceFrmt,
         daoKeyValueData.daoAddress,
       );
+
+      const proposalCount = !!azoriusModule ? azoriusProposals.length : multisigTransactions.length;
+      const votesCount = !!azoriusModule ? azoriusVotesCount : multisigVotesCount;
+      const uniqueUsers = Array.from(new Set([...uniqueMultisigUsers, ...uniqueAzoriusUsers]));
 
       daoData.push({
         timeOfSafeCreation,
@@ -94,6 +92,9 @@ async function main() {
           logo: token.logo,
           name: token.name,
         })),
+        proposalCount,
+        uniqueUsers,
+        votesCount,
       });
     }
   }

@@ -1,4 +1,4 @@
-import { fractalRegistryAbi } from "@/abis/FractalRegistry";
+import { fractalRegistryAbi } from "../abis/FractalRegistry";
 import { abis, addresses } from "@fractal-framework/fractal-contracts";
 import { type Address, type PublicClient, createPublicClient, http } from "viem";
 import { getSpecificNetworkConfig } from "./helpers.network";

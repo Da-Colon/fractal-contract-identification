@@ -23,4 +23,7 @@ export interface DAOData {
     logo: string | null;
     name: string | null;
   }[];
+  proposalCount: number;
+  uniqueUsers: Address[];
+  votesCount: number;
 }
