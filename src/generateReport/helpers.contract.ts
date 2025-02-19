@@ -3,7 +3,6 @@ import { type PublicClient, type Address } from "viem";
 import type { ContractType } from "./types.contract";
 import { defaultContractType, contractTests } from "./variables.common";
 import type { NetworkConfig } from "./types.network";
-import { addresses } from "@fractal-framework/fractal-contracts";
 
 export function getFactories(chainId: Number): { address: Address; deploymentBlock: bigint }[] {
   switch (chainId) {
@@ -170,19 +169,4 @@ export async function getInstancesForMasterCopy(
   return allLogs
     .sort((a, b) => Number(b.blockNumber) - Number(a.blockNumber))
     .map((log) => log.args.proxy as Address);
-}
-
-// @dev depreciated for now; don't delete
-export async function getAzoriusModuleInstances(client: PublicClient, network: NetworkConfig) {
-  // get the azorius module master copy address
-  const azoriusModuleMasterCopyAddress = Object.entries(
-    addresses[client.chain!.id.toString() as keyof typeof addresses],
-  ).filter(([name]) => name === "Azorius")[0];
-
-  // get all instances of the azorius module
-  return getInstancesForMasterCopy(
-    client,
-    azoriusModuleMasterCopyAddress[1] as Address,
-    network.factories,
-  );
 }
