@@ -1,3 +1,4 @@
+import fs from "fs/promises";
 import { createPublicClient, http } from "viem";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
 import { formatUSDValue, getTokenData } from "./helpers.token";

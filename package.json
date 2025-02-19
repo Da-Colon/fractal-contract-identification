@@ -3,7 +3,8 @@
   "scripts": {
     "report:all": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=all",
     "report:testnets": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=testnets",
-    "report:mainnets": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=mainnets"
+    "report:mainnets": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=mainnets",
+    "report:dummy": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=dummy"
   },
   "dependencies": {
     "@fractal-framework/fractal-contracts": "^1.4.2",
@@ -12,6 +13,7 @@
     "alchemy-sdk": "^3.5.2",
     "ansis": "^3.12.0",
     "lodash.camelcase": "^4.3.0",
+    "nodemailer": "^6.10.0",
     "p-limit": "^6.2.0",
     "viem": "^2.21.38",
     "vite-node": "^2.1.4"
