@@ -32,11 +32,11 @@ function getAlchemyClient(chainId: number) {
   return alchemy;
 }
 
-async function getTokenMetadata(client: Alchemy, tokenAddresses: Address[]) {
+async function getTokenMetadata(alchemyClient: Alchemy, tokenAddresses: Address[]) {
   return Promise.all(
     tokenAddresses.map(async (address) => {
       try {
-        const metadata = await client.core.getTokenMetadata(address);
+        const metadata = await alchemyClient.core.getTokenMetadata(address);
         return {
           address,
           name: metadata.name,
@@ -58,7 +58,11 @@ async function getTokenMetadata(client: Alchemy, tokenAddresses: Address[]) {
 }
 const tokenPriceCache = new Map<string, { usdPrice?: string; timestamp: number }>();
 
-export async function getTokenPrices(client: Alchemy, tokenAddresses: Address[], network: Network) {
+export async function getTokenPrices(
+  alchemyClient: Alchemy,
+  tokenAddresses: Address[],
+  network: Network,
+) {
   try {
     const result: { address: Address; usdPrice?: string }[] = [];
     const batchSize = 25;
@@ -73,7 +77,7 @@ export async function getTokenPrices(client: Alchemy, tokenAddresses: Address[],
       });
 
       if (addressesToFetch.length > 0) {
-        const rates = await client.prices.getTokenPriceByAddress(
+        const rates = await alchemyClient.prices.getTokenPriceByAddress(
           addressesToFetch.map((address) => ({ address, network })),
         );
 

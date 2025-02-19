@@ -7,15 +7,15 @@ import { getERC20TokenData, formatUSDValue } from "./helpers.token";
 import { SENTINEL_ADDRESS } from "./variables.common";
 
 // ! @note depreciated for now; don't delete
-export async function getAzoriusModuleInstances(client: PublicClient, network: NetworkConfig) {
+export async function getAzoriusModuleInstances(viemClient: PublicClient, network: NetworkConfig) {
   // get the azorius module master copy address
   const azoriusModuleMasterCopyAddress = Object.entries(
-    addresses[client.chain!.id.toString() as keyof typeof addresses],
+    addresses[viemClient.chain!.id.toString() as keyof typeof addresses],
   ).filter(([name]) => name === "Azorius")[0];
 
   // get all instances of the azorius module
   return getInstancesForMasterCopy(
-    client,
+    viemClient,
     azoriusModuleMasterCopyAddress[1] as Address,
     network.factories,
   );

@@ -100,7 +100,7 @@ export function getFractalRegistryContract(chainId: number) {
 }
 
 export async function identifyContract(
-  client: PublicClient,
+  viemClient: PublicClient,
   address: Address,
 ): Promise<ContractType> {
   const result = { ...defaultContractType };
@@ -120,7 +120,7 @@ export async function identifyContract(
     })) ?? []),
   ]);
 
-  const allResults = await client.multicall({
+  const allResults = await viemClient.multicall({
     contracts: allCalls,
   });
 
@@ -147,14 +147,14 @@ export async function identifyContract(
 }
 
 export async function getInstancesForMasterCopy(
-  client: PublicClient,
+  viemClient: PublicClient,
   masterCopyAddress: Address,
   factories: NetworkConfig["factories"],
 ): Promise<Address[]> {
   const allLogs: any[] = [];
 
   for (const factory of factories) {
-    const logs = await client.getContractEvents({
+    const logs = await viemClient.getContractEvents({
       address: factory.address,
       abi: ZodiacModuleProxyFactoryAbi,
       eventName: "ModuleProxyCreation",

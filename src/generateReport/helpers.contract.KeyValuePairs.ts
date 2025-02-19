@@ -43,37 +43,34 @@ type GetDAOAddressFromKeyValuePairsContractReturnType = {
 };
 
 export async function getDAOAddressFromKeyValuePairsContract(
-  client: PublicClient,
+  viemClient: PublicClient,
 ): Promise<GetDAOAddressFromKeyValuePairsContractReturnType[]> {
   // Set up an ENS lookup client if needed.
-  const isENSSupported = [1, 1115511].includes(client.chain!.id);
-  const networkConfig = getSpecificNetworkConfig(isENSSupported ? client.chain!.id : 1);
+  const isENSSupported = [1, 1115511].includes(viemClient.chain!.id);
+  const networkConfig = getSpecificNetworkConfig(isENSSupported ? viemClient.chain!.id : 1);
   const mainnetOrSepoliaClient = createPublicClient({
-    chain: isENSSupported ? client.chain : networkConfig.chain,
+    chain: isENSSupported ? viemClient.chain : networkConfig.chain,
     transport: http(networkConfig.alchemyUrl),
   });
 
-  const keyValuePairs = getKeyValuePairContract(client.chain!.id);
-  const keyValuePairsLogs = await client.getContractEvents({
+  const keyValuePairs = getKeyValuePairContract(viemClient.chain!.id);
+  const keyValuePairsLogs = await viemClient.getContractEvents({
     address: keyValuePairs.address,
     abi: abis.KeyValuePairs,
     eventName: "ValueUpdated",
     fromBlock: keyValuePairs.deploymentBlock,
   });
-  const fractalRegistry = getFractalRegistryContract(client.chain!.id);
-  const fractalRegistryLogs = await client.getContractEvents({
+  const fractalRegistry = getFractalRegistryContract(viemClient.chain!.id);
+  const fractalRegistryLogs = await viemClient.getContractEvents({
     address: fractalRegistry.address,
     abi: fractalRegistryAbi,
     eventName: "FractalNameUpdated",
     fromBlock: fractalRegistry.deploymentBlock,
   });
 
-  // We'll consider events that have either "daoName" or "snapshotENS" as a potential name update.
   const validNameKeys = new Set(["daoName"]);
 
-  // Map to store the latest valid name event for each DAO address.
   const latestNameForAddress = new Map<string, { blockNumber: bigint; name: string }>();
-  // Also track every unique DAO address seen.
   const uniqueAddresses = new Set<string>();
 
   for (const log of keyValuePairsLogs) {
