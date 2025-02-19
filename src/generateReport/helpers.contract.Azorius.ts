@@ -21,6 +21,38 @@ export async function getAzoriusModuleInstances(client: PublicClient, network: N
   );
 }
 
+async function getAzoriusStrategies(azoriusModuleAddress: Address, viemClient: PublicClient) {
+  const [s, ns] = await viemClient.readContract({
+    address: azoriusModuleAddress,
+    abi: abis.Azorius,
+    functionName: "getStrategies",
+    args: [SENTINEL_ADDRESS, 3n],
+  });
+
+  return Promise.all(
+    [...s, ns]
+      .filter((strategy) => strategy !== SENTINEL_ADDRESS && strategy !== zeroAddress)
+      .map(async (strategy) => {
+        // get the identify each of the DAO's strategies
+        return {
+          address: strategy,
+          type: await identifyContract(viemClient, strategy),
+        };
+      }),
+  );
+}
+
+async function getTokenData(daoAddress: Address, viemClient: PublicClient) {
+  const tokensData = await getERC20TokenData(daoAddress, viemClient.chain!.id);
+  const totalTokenBalance = tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0);
+  const totalTokenBalanceFrmt = formatUSDValue(totalTokenBalance);
+  return {
+    tokensData,
+    totalTokenBalance,
+    totalTokenBalanceFrmt,
+  };
+}
+
 export async function getAzoriusData(
   daoAddress: Address,
   modules: {
@@ -34,31 +66,14 @@ export async function getAzoriusData(
 
   const azoriusStrategies: { address: Address; type: ContractType }[] = [];
   if (governanceType === "Azorius") {
-    const [s, ns] = await viemClient.readContract({
-      address: azoriusModule.address,
-      abi: abis.Azorius,
-      functionName: "getStrategies",
-      args: [SENTINEL_ADDRESS, 3n],
-    });
-
-    // get the identify each of the DAO's strategies
-    const strategies = await Promise.all(
-      [...s, ns]
-        .filter((strategy) => strategy !== SENTINEL_ADDRESS && strategy !== zeroAddress)
-        .map(async (strategy) => {
-          return {
-            address: strategy,
-            type: await identifyContract(viemClient, strategy),
-          };
-        }),
-    );
-    azoriusStrategies.push(...strategies);
+    azoriusStrategies.push(...(await getAzoriusStrategies(azoriusModule.address, viemClient)));
   }
 
-  const tokensData = await getERC20TokenData(daoAddress, viemClient.chain!.id);
-  const totalTokenBalance = tokensData.reduce((acc, token) => acc + (token?.usdBalance ?? 0), 0);
+  const { tokensData, totalTokenBalance, totalTokenBalanceFrmt } = await getTokenData(
+    daoAddress,
+    viemClient,
+  );
 
-  const totalTokenBalanceFrmt = formatUSDValue(totalTokenBalance);
   return {
     governanceType: governanceType as "Azorius" | "Multisig",
     strategies: azoriusStrategies,
