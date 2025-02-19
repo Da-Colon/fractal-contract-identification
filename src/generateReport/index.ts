@@ -41,14 +41,32 @@ async function main() {
         daoKeyValueData.daoAddress,
       );
 
-      const { timeOfSafeCreation, owners, guard, modules } = await getSafeData(
+      const {
+        timeOfSafeCreation,
+        deploymentTransactionHash,
+        owners,
+        guard,
+        modules,
+        multisigTransactions,
+        uniqueMultisigUsers,
+        multisigVotesCount,
+      } = await getSafeData(daoKeyValueData.daoAddress, safeClient, client);
+
+      const {
+        governanceType,
+        totalTokenBalance,
+        totalTokenBalanceFrmt,
+        tokensData,
+        strategies,
+        azoriusProposals,
+        uniqueAzoriusUsers,
+        azoriusVotesCount,
+      } = await getAzoriusData(
         daoKeyValueData.daoAddress,
-        safeClient,
+        deploymentTransactionHash,
+        modules,
         client,
       );
-
-      const { governanceType, totalTokenBalance, totalTokenBalanceFrmt, tokensData, strategies } =
-        await getAzoriusData(daoKeyValueData.daoAddress, modules, client);
 
       logs.updateNetworkSearch("Governance Type", governanceType, daoKeyValueData.daoAddress);
       logs.updateNetworkSearch(
@@ -82,10 +100,10 @@ async function main() {
 
   logs.finishNetworkSearch();
 
-  // todo total aggregate treasury amount in all daos, platform wide
-  // todo total aggregate number of proposals in all daos, platform wide
-  // todo total aggregate number of votes in all daos, platform wide
-  // todo total number of unique addresses that have interacted with the platform
+  // todo total aggregate treasury amount in all daos, platform wide ✅
+  // todo total aggregate number of proposals in all daos, platform wide ✅
+  // todo total aggregate number of votes in all daos, platform wide ✅
+  // todo total number of unique addresses that have interacted with the platform ✅
   // todo total amount of $ in airdrops through platform
   // todo total amount of $ in streams through platform
   // todo total amount of $ in transfers through platform
