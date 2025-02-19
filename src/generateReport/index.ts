@@ -2,13 +2,14 @@ import { abis } from "@fractal-framework/fractal-contracts";
 import { type Address, createPublicClient, http, zeroAddress } from "viem";
 import { SENTINEL_ADDRESS } from "./variables.common";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
-import { getDAOAddressFromKeyValuePairsContract, identifyContract } from "./helpers.contract";
+import { identifyContract } from "./helpers.contract";
 import { formatUSDValue, getERC20TokenData } from "./helpers.token";
 import { type ContractType } from "./types.contract";
 import { GenerateReportLogs } from "../logging/LogMessage";
 import SafeApiKit from "@safe-global/api-kit";
 import type { DAOData } from "./types.common";
 import { formatDAOData } from "./helpers.common";
+import { getDAOAddressFromKeyValuePairsContract } from "./helpers.contract.KeyValuePairs";
 
 async function main() {
   const networksFilter = parseNetworksArg();
