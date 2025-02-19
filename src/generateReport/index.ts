@@ -1,15 +1,13 @@
-import { abis } from "@fractal-framework/fractal-contracts";
-import { type Address, createPublicClient, http, zeroAddress } from "viem";
-import { SENTINEL_ADDRESS } from "./variables.common";
+import { createPublicClient, http } from "viem";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
-import { identifyContract } from "./helpers.contract";
-import { formatUSDValue, getERC20TokenData } from "./helpers.token";
-import { type ContractType } from "./types.contract";
+import { formatUSDValue } from "./helpers.token";
 import { GenerateReportLogs } from "../logging/LogMessage";
 import SafeApiKit from "@safe-global/api-kit";
 import type { DAOData } from "./types.common";
 import { formatDAOData } from "./helpers.common";
 import { getDAOAddressFromKeyValuePairsContract } from "./helpers.contract.KeyValuePairs";
+import { getAzoriusData } from "./helpers.contract.Azorius";
+import { getSafeData } from "./helpers.safe";
 
 async function main() {
   const networksFilter = parseNetworksArg();
@@ -33,7 +31,6 @@ async function main() {
       chainId: BigInt(network.chain.id),
     });
 
-    // get all dao created via Decent dApp via KeyValuePairs
     const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(client);
     logs.updateNetworkSearch("Found", `${daoKeyValueDatas.length} DAOs`, network.chain.name);
 
@@ -43,57 +40,17 @@ async function main() {
         daoKeyValueData.daoName,
         daoKeyValueData.daoAddress,
       );
-      // get safe info
-      const safeInfo = await safeClient.getSafeInfo(daoKeyValueData.daoAddress);
-      const safeCreationInfo = await safeClient.getSafeCreationInfo(daoKeyValueData.daoAddress);
-      const modules = safeInfo.modules;
-      const owners = safeInfo.owners;
-      const guard = safeInfo.guard;
 
-      const decentModules: { address: Address; type: ContractType }[] = [];
-      for (const module of modules) {
-        const type = await identifyContract(client, module);
-        if (type) {
-          decentModules.push({
-            address: module,
-            type,
-          });
-        }
-      }
-      const [azoriusModule] = decentModules.filter((module) => module.type.isModuleAzorius);
-      const governanceType = azoriusModule ? "Azorius" : "Multisig";
-      logs.updateNetworkSearch("Governance Type", governanceType, daoKeyValueData.daoAddress);
-
-      const azoriusStrategies: { address: Address; type: ContractType }[] = [];
-      if (governanceType === "Azorius") {
-        const [s, ns] = await client.readContract({
-          address: azoriusModule.address,
-          abi: abis.Azorius,
-          functionName: "getStrategies",
-          args: [SENTINEL_ADDRESS, 3n],
-        });
-
-        // get the identify each of the DAO's strategies
-        const strategies = await Promise.all(
-          [...s, ns]
-            .filter((strategy) => strategy !== SENTINEL_ADDRESS && strategy !== zeroAddress)
-            .map(async (strategy) => {
-              return {
-                address: strategy,
-                type: await identifyContract(client, strategy),
-              };
-            }),
-        );
-        azoriusStrategies.push(...strategies);
-      }
-
-      const tokensData = await getERC20TokenData(daoKeyValueData.daoAddress, client.chain.id);
-      const totalTokenBalance = tokensData.reduce(
-        (acc, token) => acc + (token?.usdBalance ?? 0),
-        0,
+      const { timeOfSafeCreation, owners, guard, modules } = await getSafeData(
+        daoKeyValueData.daoAddress,
+        safeClient,
+        client,
       );
 
-      const totalTokenBalanceFrmt = formatUSDValue(totalTokenBalance);
+      const { governanceType, totalTokenBalance, totalTokenBalanceFrmt, tokensData, strategies } =
+        await getAzoriusData(daoKeyValueData.daoAddress, modules, client);
+
+      logs.updateNetworkSearch("Governance Type", governanceType, daoKeyValueData.daoAddress);
       logs.updateNetworkSearch(
         "DAO Treasury holds",
         totalTokenBalanceFrmt,
@@ -101,14 +58,14 @@ async function main() {
       );
 
       daoData.push({
-        timeOfCreation: safeCreationInfo.created,
+        timeOfSafeCreation,
         address: daoKeyValueData.daoAddress,
         name: daoKeyValueData.daoName,
         owners,
         guard,
         governanceType,
         network: network.chain.name,
-        strategies: azoriusStrategies,
+        strategies,
         totalTokenBalance,
         totalTokenBalanceFrmt,
         tokens: tokensData.map((token) => ({
