@@ -1,5 +1,5 @@
 import { abis, addresses } from "@fractal-framework/fractal-contracts";
-import { type PublicClient, type Address, zeroAddress } from "viem";
+import { type PublicClient, type Address, zeroAddress, getAddress, type Hex } from "viem";
 import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
 import type { NetworkConfig } from "./types.network";
 import type { ContractType } from "./types.contract";
@@ -53,8 +53,77 @@ async function getTokenData(daoAddress: Address, viemClient: PublicClient) {
   };
 }
 
+async function getProposals(
+  azoriusModuleAddress: Address,
+  deploymentBlockNumber: bigint,
+  viemClient: PublicClient,
+) {
+  const logs = await viemClient.getContractEvents({
+    address: azoriusModuleAddress,
+    abi: abis.Azorius,
+    eventName: "ProposalCreated",
+    args: [],
+    fromBlock: deploymentBlockNumber,
+  });
+  const proposalsData = logs.map((log) => {
+    const { proposalId, proposer } = log.args;
+    return {
+      proposalId: proposalId as bigint,
+      proposer: getAddress(proposer as Address),
+      strategy: getAddress(log.args.strategy as Address),
+    };
+  });
+
+  return proposalsData;
+}
+
+async function getAzoriusProposalsData(
+  proposals: {
+    proposalId: bigint;
+    proposer: Address;
+    strategy: Address;
+  }[],
+  deploymentBlockNumber: bigint,
+  viemClient: PublicClient,
+) {
+  const allUniqueUsers = new Set<Address>();
+  let voteCount = 0;
+  for (const proposal of proposals) {
+    allUniqueUsers.add(proposal.proposer);
+    const strategy = await identifyContract(viemClient, proposal.strategy);
+    if (strategy.isLinearVotingErc20 || strategy.isLinearVotingErc20WithHatsProposalCreation) {
+      const votes = await viemClient.getContractEvents({
+        address: proposal.strategy,
+        abi: abis.LinearERC20Voting,
+        eventName: "Voted",
+        args: [Number(proposal.proposalId)],
+        fromBlock: deploymentBlockNumber,
+      });
+      for (const vote of votes) {
+        allUniqueUsers.add(getAddress(vote.args.voter as Address));
+        voteCount += 1;
+      }
+    }
+    if (strategy.isLinearVotingErc721 || strategy.isLinearVotingErc721WithHatsProposalCreation) {
+      const votes = await viemClient.getContractEvents({
+        address: proposal.strategy,
+        abi: abis.LinearERC721Voting,
+        eventName: "Voted",
+        args: [Number(proposal.proposalId)],
+        fromBlock: deploymentBlockNumber,
+      });
+      for (const vote of votes) {
+        allUniqueUsers.add(getAddress(vote.args.voter as Address));
+        voteCount += 1;
+      }
+    }
+  }
+  return { uniqueUsers: Array.from(allUniqueUsers), voteCount };
+}
+
 export async function getAzoriusData(
   daoAddress: Address,
+  deploymentTransactionHash: Hex,
   modules: {
     address: Address;
     type: ContractType;
@@ -68,6 +137,20 @@ export async function getAzoriusData(
   if (governanceType === "Azorius") {
     azoriusStrategies.push(...(await getAzoriusStrategies(azoriusModule.address, viemClient)));
   }
+  const deploymentBlock = await viemClient.getTransaction({
+    hash: deploymentTransactionHash,
+  });
+  const azoriusProposals = await getProposals(
+    azoriusModule.address,
+    deploymentBlock.blockNumber,
+    viemClient,
+  );
+
+  const { uniqueUsers, voteCount } = await getAzoriusProposalsData(
+    azoriusProposals,
+    deploymentBlock.blockNumber,
+    viemClient,
+  );
 
   const { tokensData, totalTokenBalance, totalTokenBalanceFrmt } = await getTokenData(
     daoAddress,
@@ -80,5 +163,8 @@ export async function getAzoriusData(
     tokensData,
     totalTokenBalance,
     totalTokenBalanceFrmt,
+    azoriusProposals,
+    uniqueAzoriusUsers: uniqueUsers,
+    azoriusVotesCount: voteCount,
   };
 }
