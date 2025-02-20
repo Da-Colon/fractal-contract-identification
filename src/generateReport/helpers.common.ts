@@ -24,7 +24,6 @@ export function formatDAOData(daoData: DAOData[], networks: NetworkConfig[]) {
     const daoOnNetwork = daoData.filter((d) => d.network === networkName);
 
     const totalBalance = daoOnNetwork.reduce((acc, dao) => acc + Number(dao.totalTokenBalance), 0);
-    const totalUSD = formatUSDValue(totalBalance);
     const totalMultisigs = daoOnNetwork.filter((d) => d.governanceType === "Multisig").length;
     const totalAzorius = daoOnNetwork.filter((d) => d.governanceType === "Azorius").length;
     const uniqueUsers = new Set<string>();
@@ -36,8 +35,7 @@ export function formatDAOData(daoData: DAOData[], networks: NetworkConfig[]) {
     return {
       Network: networkName,
       "Total Daos": daoOnNetwork.length,
-      "Total Balance": totalBalance,
-      "Total USD": totalUSD,
+      "Total Treasury": formatUSDValue(totalBalance),
       "Total Multisigs": totalMultisigs,
       "Total Azorius": totalAzorius,
       "Total Unique Users": totalUniqueUsers,
@@ -68,14 +66,14 @@ export function formatDAOData(daoData: DAOData[], networks: NetworkConfig[]) {
     );
 
     return {
-      "Dao Address": dao.address,
-      "Dao Name": dao.name || "",
-      Governance: dao.governanceType,
       Network: dao.network,
+      "Dao Name": dao.name || "",
+      "Total Treasury": dao.totalTokenBalanceFrmt,
+      Governance: dao.governanceType,
+      "Dao Address": dao.address,
       "Proposal Count": dao.proposalCount,
       "Unique Users": dao.uniqueUsers.length,
       "Votes Count": dao.votesCount,
-      Balance: dao.totalTokenBalanceFrmt,
       ...strategies,
     };
   });
@@ -83,7 +81,6 @@ export function formatDAOData(daoData: DAOData[], networks: NetworkConfig[]) {
   // Ensure overalTotals is formatted as an array of objects
   const overalTotals: FormattedOveralTotals[] = [
     { Metric: "Total DAOs", Value: totalDaos },
-    { Metric: "Total Balance", Value: totalBalance.toLocaleString() },
     { Metric: "Total USD", Value: totalUSD },
     { Metric: "Total Multisigs", Value: totalMultisigs },
     { Metric: "Total Azorius", Value: totalAzorius },

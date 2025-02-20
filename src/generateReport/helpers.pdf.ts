@@ -5,8 +5,7 @@ import fs from "fs";
 interface NetworkTotal {
   Network: string;
   "Total Daos": number;
-  "Total Balance": number;
-  "Total USD": string;
+  "Total Treasury": string;
   "Total Multisigs": number;
   "Total Azorius": number;
   "Total Unique Users": number;
@@ -21,13 +20,13 @@ interface FormattedOveralTotal {
 
 interface DaoData {
   "Dao Address": string;
+  "Total Treasury": string;
   "Dao Name": string;
   Governance: string;
   Network: string;
   "Proposal Count": number;
   "Unique Users": number;
   "Votes Count": number;
-  Balance: string;
   [key: string]: string | number; // Strategies are dynamic
 }
 
