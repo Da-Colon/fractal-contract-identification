@@ -23,7 +23,7 @@ async function main() {
   logs.generateReportStart(filteredNetworks.map((n) => n.chain.name));
   if (networksFilter !== "dummy")
     for (const network of filteredNetworks) {
-      if (networkFilter && chainIds.includes(networkFilter) && network.chain.id === networkFilter) {
+      if (networkFilter && chainIds.includes(networkFilter) && network.chain.id !== networkFilter) {
         continue;
       }
       // get the client
