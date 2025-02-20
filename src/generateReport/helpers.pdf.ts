@@ -25,9 +25,9 @@ interface DaoData {
   "Dao Name": string;
   Governance: string;
   Network: string;
-  "Proposal Count": number;
+  Proposals: number;
   "Unique Users": number;
-  "Votes Count": number;
+  "# Votes": number;
   [key: string]: string | number; // Strategies are dynamic
 }
 
@@ -120,7 +120,7 @@ export async function generateDAOReport(reportData: ReportData) {
     doc,
     reportData.daoData,
     Object.keys(reportData.daoData[0]),
-    [64, 64, 64, 64, 88, 64, 64, 64],
+    [64, 64, 64, 64, 64, 64, 64, 40],
     10,
   );
   doc.moveDown(2);

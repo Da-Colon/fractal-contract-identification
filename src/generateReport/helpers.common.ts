@@ -56,27 +56,29 @@ export function formatDAOData(daoData: DAOData[], networks: NetworkConfig[]) {
   const totalProposals = daoData.reduce((acc, dao) => acc + dao.proposalCount, 0);
   const totalDaos = daoData.length;
 
-  const daoDataFrmt = daoData.map((dao) => {
-    const strategies = dao.strategies.reduce(
-      (acc, strategy, index) => {
-        acc[`Strategy ${index}`] = strategy;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
+  const daoDataFrmt = daoData
+    .sort((a, b) => Number(b.totalTokenBalance) - Number(a.totalTokenBalance))
+    .map((dao) => {
+      const strategies = dao.strategies.reduce(
+        (acc, strategy, index) => {
+          acc[`Strategy ${index}`] = strategy;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
 
-    return {
-      Network: dao.network,
-      "Dao Name": dao.name || "",
-      "Total Treasury": dao.totalTokenBalanceFrmt,
-      Governance: dao.governanceType,
-      "Dao Address": dao.address,
-      "Proposal Count": dao.proposalCount,
-      "Unique Users": dao.uniqueUsers.length,
-      "Votes Count": dao.votesCount,
-      ...strategies,
-    };
-  });
+      return {
+        Network: dao.network,
+        "Dao Name": dao.name || "",
+        "Total Treasury": dao.totalTokenBalanceFrmt,
+        Governance: dao.governanceType,
+        "Dao Address": dao.address,
+        Proposals: dao.proposalCount,
+        "Unique Users": dao.uniqueUsers.length,
+        "# Votes": dao.votesCount,
+        ...strategies,
+      };
+    });
 
   // Ensure overalTotals is formatted as an array of objects
   const overalTotals: FormattedOveralTotals[] = [
