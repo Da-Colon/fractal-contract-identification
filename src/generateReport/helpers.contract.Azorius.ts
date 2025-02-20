@@ -88,11 +88,12 @@ async function getAzoriusProposalsData(
     allUniqueUsers.add(proposal.proposer);
     const strategy = await identifyContract(viemClient, proposal.strategy);
     if (strategy.isLinearVotingErc20 || strategy.isLinearVotingErc20WithHatsProposalCreation) {
-      const votes = await viemClient.getContractEvents({
+      const strategyContract = getContract({
         address: proposal.strategy,
         abi: abis.LinearERC20Voting,
-        eventName: "Voted",
-        args: [Number(proposal.proposalId)],
+        client: viemClient,
+      });
+      const votes = await strategyContract.getEvents.Voted({
         fromBlock: deploymentBlockNumber,
       });
       for (const vote of votes) {
@@ -101,11 +102,12 @@ async function getAzoriusProposalsData(
       }
     }
     if (strategy.isLinearVotingErc721 || strategy.isLinearVotingErc721WithHatsProposalCreation) {
-      const votes = await viemClient.getContractEvents({
+      const strategyContract = getContract({
         address: proposal.strategy,
         abi: abis.LinearERC721Voting,
-        eventName: "Voted",
-        args: [Number(proposal.proposalId)],
+        client: viemClient,
+      });
+      const votes = await strategyContract.getEvents.Voted({
         fromBlock: deploymentBlockNumber,
       });
       for (const vote of votes) {
