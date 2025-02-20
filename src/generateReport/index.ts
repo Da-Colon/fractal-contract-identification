@@ -11,6 +11,7 @@ import { getAzoriusData } from "./helpers.contract.Azorius";
 import { getSafeData } from "./helpers.safe";
 import { getContractType } from "./types.contract";
 import { dummyDAOData } from "../ui/mocks.dummyData.daos";
+import { generateDAOReport } from "./helpers.pdf";
 
 async function main() {
   const networksFilter = parseNetworksArg();
@@ -119,12 +120,7 @@ async function main() {
 
   const summaries = formatDAOData(daoData, filteredNetworks);
 
-  logs.reportTitle("Summary");
-  console.table(summaries.overalTotals);
-  logs.reportTitle("Network Totals");
-  console.table(summaries.networkTotals);
-  logs.reportTitle("DAO Data");
-  console.table(summaries.daoData);
+  generateDAOReport(summaries);
 }
 
 main();

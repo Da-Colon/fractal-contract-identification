@@ -12,6 +12,7 @@ export function filterNetworks(networks: NetworkConfig[], filter: string): Netwo
     case "testnets":
       return networks.filter((n) => n.isTestnet);
     case "mainnets":
+    case "dummy":
       return networks.filter((n) => !n.isTestnet);
     case "all":
     default:
