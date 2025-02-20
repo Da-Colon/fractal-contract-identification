@@ -43,7 +43,6 @@ async function main() {
           daoKeyValueData.daoName,
           daoKeyValueData.daoAddress,
         );
-
         const {
           timeOfSafeCreation,
           deploymentTransactionHash,
@@ -118,8 +117,12 @@ async function main() {
   // todo total amount of $ in transfers through platform
 
   const summaries = formatDAOData(daoData, filteredNetworks);
-
-  generateDAOReport(summaries);
+  if (!daoData.length) {
+    console.log("No DAOs found for the selected networks.");
+    return;
+  } else {
+    generateDAOReport(summaries, networksFilter);
+  }
 }
 
 main();
