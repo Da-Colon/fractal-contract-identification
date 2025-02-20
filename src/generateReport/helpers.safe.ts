@@ -10,6 +10,35 @@ export async function getSafeData(
 ) {
   const safeInfo = await safeClient.getSafeInfo(daoAddress);
   const safeCreationInfo = await safeClient.getSafeCreationInfo(daoAddress);
+
+  const modules = safeInfo.modules;
+  const owners = safeInfo.owners;
+  const guard = safeInfo.guard;
+
+  const decentModules: { address: Address; type: ContractType }[] = [];
+  for (const module of modules) {
+    const type = await identifyContract(viemClient, module);
+    if (type) {
+      decentModules.push({
+        address: module,
+        type,
+      });
+    }
+  }
+  const [azoriusModule] = decentModules.filter((module) => module.type.isModuleAzorius);
+  if (!azoriusModule) {
+    return {
+      timeOfSafeCreation: safeCreationInfo.created,
+      deploymentTransactionHash: safeCreationInfo.transactionHash as Hex,
+      owners,
+      guard,
+      modules: decentModules,
+      multisigTransactions: [],
+      uniqueMultisigUsers: [],
+      multisigVotesCount: 0,
+    };
+  }
+
   const multisigTransactions = await safeClient.getMultisigTransactions(daoAddress);
   const pendingTransactions = await safeClient.getPendingTransactions(daoAddress);
   // combine and filter out any duplicate transactions
@@ -36,20 +65,6 @@ export async function getSafeData(
     }
   }
 
-  const modules = safeInfo.modules;
-  const owners = safeInfo.owners;
-  const guard = safeInfo.guard;
-
-  const decentModules: { address: Address; type: ContractType }[] = [];
-  for (const module of modules) {
-    const type = await identifyContract(viemClient, module);
-    if (type) {
-      decentModules.push({
-        address: module,
-        type,
-      });
-    }
-  }
   return {
     timeOfSafeCreation: safeCreationInfo.created,
     deploymentTransactionHash: safeCreationInfo.transactionHash as Hex,
