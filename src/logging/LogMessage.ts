@@ -32,5 +32,10 @@ ${this.formatTitle(`Searching Network: ${networkName}`)}
     this.progressMap.set(networkName, progress + 1);
   }
 
+  reportTitle(label: string): void {
+    console.log(`
+${this.formatTitle(label)}`);
+  }
+
   finishNetworkSearch(): void {}
 }

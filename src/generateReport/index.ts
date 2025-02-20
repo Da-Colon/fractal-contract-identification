@@ -117,27 +117,14 @@ async function main() {
   // todo total amount of $ in streams through platform
   // todo total amount of $ in transfers through platform
 
-  console.table(
-    filteredNetworks.map((n) => {
-      const daoOnNetwork = daoData.filter((d) => d.network === n.chain.name);
-      const totalBalance = daoOnNetwork.reduce(
-        (acc, dao) => acc + Number(dao.totalTokenBalance),
-        0,
-      );
-      const totalUSD = formatUSDValue(totalBalance);
-      const totalMultisigs = daoOnNetwork.filter((d) => d.governanceType === "Multisig").length;
-      const totalAzorius = daoOnNetwork.filter((d) => d.governanceType === "Azorius").length;
-      return {
-        Network: n.chain.name,
-        DAOs: daoOnNetwork.length,
-        "Total USD": totalUSD,
-        Multisigs: totalMultisigs,
-        Azorius: totalAzorius,
-      };
-    }),
-  );
+  const summaries = formatDAOData(daoData, filteredNetworks);
 
-  console.table(formatDAOData(daoData));
+  logs.reportTitle("Summary");
+  console.table(summaries.overalTotals);
+  logs.reportTitle("Network Totals");
+  console.table(summaries.networkTotals);
+  logs.reportTitle("DAO Data");
+  console.table(summaries.daoData);
 }
 
 main();
