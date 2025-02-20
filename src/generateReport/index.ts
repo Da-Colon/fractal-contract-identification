@@ -32,7 +32,7 @@ async function main() {
       const safeClient = new SafeApiKit({
         chainId: BigInt(network.chain.id),
       });
-      delay(500);
+      await delay(500);
 
       const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(viemClient);
       logs.updateNetworkSearch("Found", `${daoKeyValueDatas.length} DAOs`, network.chain.name);
@@ -104,7 +104,7 @@ async function main() {
           votesCount,
         });
       }
-      delay(1500);
+      await delay(1500);
     }
 
   logs.finishNetworkSearch();
