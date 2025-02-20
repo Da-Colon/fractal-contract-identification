@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
+import { createAddressSubstring } from "./helpers.common";
 
 // Define data types
 interface NetworkTotal {
@@ -8,7 +9,7 @@ interface NetworkTotal {
   "Total Treasury": string;
   "Total Multisigs": number;
   "Total Azorius": number;
-  "Total Unique Users": number;
+  "Total Users": number;
   "Total Votes": number;
   "Total Proposals": number;
 }
@@ -39,7 +40,7 @@ interface ReportData {
 // Function to generate a timestamped file name
 function getTimestampedFileName(baseName: string): string {
   const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0]; // Remove milliseconds
-  return `reports/${timestamp}_${baseName}.pdf`;
+  return `reports/${baseName}.pdf`;
 }
 
 // Function to ensure "reports/" directory exists
@@ -50,47 +51,79 @@ async function ensureReportsDirectory() {
   }
 }
 
-// Function to generate the DAO report with fixed tables
+class DocModifier {
+  constructor(private doc: PDFKit.PDFDocument) {}
+
+  // Method to add a header with better spacing
+  setLabelFont() {
+    this.doc.font("Helvetica-Bold").fontSize(8).fillColor("black");
+  }
+  setValueFont() {
+    this.doc.font("Helvetica").fontSize(8).fillColor("blue");
+  }
+
+  drawBorder() {
+    const { width, height } = this.doc.page;
+    const borderPadding = 10; // Distance from edge
+    const borderPadding2 = 5; // Distance from edge
+    this.doc
+      .rect(borderPadding, borderPadding, width - borderPadding * 2, height - borderPadding * 2)
+      .stroke();
+    this.doc
+      .rect(borderPadding2, borderPadding2, width - borderPadding2 * 2, height - borderPadding2 * 2)
+      .stroke();
+  }
+
+  reset() {
+    this.doc.font("Helvetica").fontSize(12).fillColor("black");
+    this.doc.x = 32; // Reset x position
+    this.doc.opacity(1);
+  }
+}
+
+// Function to generate the DAO report with better spacing and alignment
 export async function generateDAOReport(reportData: ReportData) {
   await ensureReportsDirectory();
   const outputFile = getTimestampedFileName("DAO_Report");
-  const doc = new PDFDocument({ margin: 40 });
+  const doc = new PDFDocument({ margins: { top: 24, left: 32, right: 32, bottom: 24 } });
+  const docModifier = new DocModifier(doc);
 
   const stream = fs.createWriteStream(outputFile);
   doc.pipe(stream);
 
+  docModifier.drawBorder();
   // Title
-  doc.fontSize(20).text("DAO Report", { align: "center" });
-  doc.moveDown(1);
-
+  doc.fontSize(22).text("Decent dApp report", { align: "center" });
+  doc.fontSize(6).text(new Date().toLocaleString(), { align: "center" });
+  doc.moveDown();
   // Summary
-  doc.fontSize(14).text("Summary:", { underline: true });
-  doc.moveDown(0.5);
+  doc.fontSize(12).text("Summary:", { underline: true });
   generateSummaryTable(doc, reportData.overalTotals);
+  docModifier.reset();
   doc.moveDown(1);
-
   // Network Totals
-  doc.fontSize(14).text("Network Totals:", { underline: true });
+  doc.fontSize(12).text("Network Totals:", { underline: true, align: "left" });
   doc.moveDown(0.5);
   generateTable(
     doc,
     reportData.networkTotals,
     Object.keys(reportData.networkTotals[0]),
-    new Array(Object.keys(reportData.networkTotals[0]).length).fill(80),
+    [64, 64, 80, 64, 64, 64, 64],
+    15,
   );
-  doc.moveDown(1);
-
   // DAO Data
-  doc.fontSize(14).text("DAO Data:");
-  doc.text("", { underline: true });
+  docModifier.reset();
+  doc.moveDown(1);
+  doc.fontSize(12).text("DAO Data:");
   doc.moveDown(0.5);
   generateTable(
     doc,
     reportData.daoData,
     Object.keys(reportData.daoData[0]),
-    new Array(Object.keys(reportData.daoData[0]).length).fill(100),
+    [64, 64, 64, 64, 88, 64, 64, 64],
+    10,
   );
-  doc.moveDown(1);
+  doc.moveDown(2);
 
   doc.end(); // Finalize the document
   console.log(`PDF Report Generated: ${outputFile}`);
@@ -98,22 +131,17 @@ export async function generateDAOReport(reportData: ReportData) {
 
 // Function to generate summary table for overalTotals
 function generateSummaryTable(doc: PDFKit.PDFDocument, summaryData: FormattedOveralTotal[]) {
-  const rowHeight = 20;
-  let y = doc.y;
-
-  doc.font("Helvetica-Bold").fontSize(10);
-  doc.text("Metric", 50, y, { width: 180 });
-  doc.text("Value", 230, y, { width: 250 });
-  y += rowHeight;
+  const docModifier = new DocModifier(doc);
+  const x = doc.x;
   doc.moveDown(0.5);
-
-  doc.font("Helvetica").fontSize(9);
   summaryData.forEach(({ Metric, Value }) => {
-    doc.text(Metric, 50, y, { width: 180 });
-    doc.text(Value.toString(), 230, y, { width: 250 });
-    y += rowHeight;
-    doc.moveDown(0.5);
+    docModifier.setLabelFont();
+    doc.text(Metric, x + 16, doc.y, { underline: true });
+    docModifier.setValueFont();
+    doc.text(Value.toString(), x + 32);
+    doc.moveDown(0.25);
   });
+  docModifier.reset();
 }
 
 // Function to create a table with fixed column widths and page wrapping
@@ -122,39 +150,73 @@ function generateTable(
   tableData: any[],
   headers: string[],
   colWidths: number[],
+  rowPadding: number,
 ) {
+  const docModifier = new DocModifier(doc);
   const rowHeight = 20;
   let y = doc.y;
+  const x = doc.x;
 
   // Function to check if the page should break
-  function checkPageBreak() {
-    if (y + rowHeight > doc.page.height - 40) {
+  function checkPageBreak(_rowHeight: number, _y: number) {
+    if (_y + _rowHeight > doc.page.height - doc.page.margins.bottom) {
       doc.addPage();
-      y = doc.y;
+      y = doc.page.margins.top;
     }
   }
-
   // Table Headers
-  doc.font("Helvetica-Bold").fontSize(10);
+  docModifier.setLabelFont();
   headers.forEach((header, i) => {
-    doc.text(header, 50 + colWidths.slice(0, i).reduce((a, b) => a + b, 0), y, {
+    doc.text(header, x + colWidths.slice(0, i).reduce((a, b) => a + b, 0) + rowPadding, y, {
       width: colWidths[i],
+      underline: true,
     });
   });
   y += rowHeight;
-  doc.moveDown(0.5);
+  doc.moveDown(1);
 
   // Table Rows
-  doc.font("Helvetica").fontSize(9);
   tableData.forEach((row) => {
-    checkPageBreak();
+    checkPageBreak(rowHeight, y);
     headers.forEach((header, i) => {
+      docModifier.reset();
+      if (i > 0) {
+        docModifier.setValueFont();
+      } else {
+        docModifier.setLabelFont();
+      }
       const value = typeof row === "object" ? row[header] : row[1];
-      doc.text(value?.toString() ?? "", 50 + colWidths.slice(0, i).reduce((a, b) => a + b, 0), y, {
-        width: colWidths[i],
-      });
+      if (value?.length > 41) {
+        doc.text(
+          createAddressSubstring(value),
+          x + colWidths.slice(0, i).reduce((a, b) => a + b, 0) + rowPadding,
+          y,
+          {
+            width: colWidths[i],
+          },
+        );
+        doc
+          .opacity(0)
+          .text(
+            value.toString(),
+            x + colWidths.slice(0, i).reduce((a, b) => a + b, 0) + rowPadding,
+            y,
+            {
+              lineBreak: false,
+            },
+          );
+      } else {
+        doc.text(
+          value?.toString() ?? "",
+          x + colWidths.slice(0, i).reduce((a, b) => a + b, 0) + rowPadding,
+          y,
+          {
+            width: colWidths[i],
+          },
+        );
+      }
     });
     y += rowHeight;
-    doc.moveDown(0.5);
+    doc.moveDown(1);
   });
 }

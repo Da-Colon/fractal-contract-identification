@@ -38,7 +38,7 @@ export function formatDAOData(daoData: DAOData[], networks: NetworkConfig[]) {
       "Total Treasury": formatUSDValue(totalBalance),
       "Total Multisigs": totalMultisigs,
       "Total Azorius": totalAzorius,
-      "Total Unique Users": totalUniqueUsers,
+      "Total Users": totalUniqueUsers,
       "Total Votes": totalVotes,
       "Total Proposals": totalProposals,
     };
