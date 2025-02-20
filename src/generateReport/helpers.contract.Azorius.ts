@@ -1,5 +1,12 @@
 import { abis, addresses } from "@fractal-framework/fractal-contracts";
-import { type PublicClient, type Address, zeroAddress, getAddress, type Hex } from "viem";
+import {
+  type PublicClient,
+  type Address,
+  zeroAddress,
+  getAddress,
+  type Hex,
+  getContract,
+} from "viem";
 import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
 import type { NetworkConfig } from "./types.network";
 import type { ContractType } from "./types.contract";
@@ -46,11 +53,12 @@ async function getProposals(
   deploymentBlockNumber: bigint,
   viemClient: PublicClient,
 ) {
-  const logs = await viemClient.getContractEvents({
+  const azoriusContract = getContract({
     address: azoriusModuleAddress,
     abi: abis.Azorius,
-    eventName: "ProposalCreated",
-    args: [],
+    client: viemClient,
+  });
+  const logs = await azoriusContract.getEvents.ProposalCreated({
     fromBlock: deploymentBlockNumber,
   });
   const proposalsData = logs.map((log) => {
