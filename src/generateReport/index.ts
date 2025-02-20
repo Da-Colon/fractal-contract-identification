@@ -1,6 +1,6 @@
 import { createPublicClient, http } from "viem";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
-import { formatUSDValue, getTokenData } from "./helpers.token";
+import { getTokenData } from "./helpers.token";
 import { GenerateReportLogs } from "../logging/LogMessage";
 import SafeApiKit from "@safe-global/api-kit";
 import type { DAOData } from "./types.common";
