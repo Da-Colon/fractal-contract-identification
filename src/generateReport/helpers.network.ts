@@ -4,20 +4,22 @@ import { getFactories } from "./helpers.contract";
 
 export function parseNetworksArg() {
   const networksArg = process.argv.find((arg) => arg.startsWith("--networks="));
-  let networkFilter: undefined | number = undefined;
-  // check if the argument provided is a number, if so parse it and set it to the networkFilter
-  if (networksArg) {
-    const parsedArg = parseInt(networksArg.split("=")[1]);
-    if (!isNaN(parsedArg)) {
-      networkFilter = parsedArg;
-    }
-  }
 
-  return { networksFilter: networksArg ? networksArg.split("=")[1] : "all", networkFilter };
+  return networksArg ? networksArg.split("=")[1] : "all";
 }
 
 export function filterNetworks(networks: NetworkConfig[], filter: string): NetworkConfig[] {
   switch (filter) {
+    case "10":
+      return networks.filter((n) => n.chain.id === 10);
+    case "137":
+      return networks.filter((n) => n.chain.id === 137);
+    case "8453":
+      return networks.filter((n) => n.chain.id === 8453);
+    case "1":
+      return networks.filter((n) => n.chain.id === 1);
+    case "11155111":
+      return networks.filter((n) => n.chain.id === 11155111);
     case "testnets":
       return networks.filter((n) => n.isTestnet);
     case "mainnets":
