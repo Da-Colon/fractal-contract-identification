@@ -8,8 +8,12 @@ export async function getSafeData(
   safeClient: SafeApiKit,
   viemClient: PublicClient,
 ) {
-  const safeInfo = await safeClient.getSafeInfo(daoAddress);
-  const safeCreationInfo = await safeClient.getSafeCreationInfo(daoAddress);
+  const safeInfo = await safeClient
+    .getSafeInfo(daoAddress)
+    .catch(() => safeClient.getSafeInfo(daoAddress));
+  const safeCreationInfo = await safeClient
+    .getSafeCreationInfo(daoAddress)
+    .catch(() => safeClient.getSafeCreationInfo(daoAddress));
 
   const modules = safeInfo.modules;
   const owners = safeInfo.owners;
@@ -39,8 +43,12 @@ export async function getSafeData(
     };
   }
 
-  const multisigTransactions = await safeClient.getMultisigTransactions(daoAddress);
-  const pendingTransactions = await safeClient.getPendingTransactions(daoAddress);
+  const multisigTransactions = await safeClient
+    .getMultisigTransactions(daoAddress)
+    .catch(() => safeClient.getMultisigTransactions(daoAddress));
+  const pendingTransactions = await safeClient
+    .getPendingTransactions(daoAddress)
+    .catch(() => safeClient.getPendingTransactions(daoAddress));
   // combine and filter out any duplicate transactions
   const allTransactions = [...multisigTransactions.results, ...pendingTransactions.results].filter(
     (tx, index, self) => self.findIndex((t) => t.transactionHash === tx.transactionHash) === index,
