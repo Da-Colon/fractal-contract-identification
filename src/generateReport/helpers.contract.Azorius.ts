@@ -9,8 +9,10 @@ import {
 } from "viem";
 import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
 import type { NetworkConfig } from "./types.network";
-import type { ContractType } from "./types.contract";
+import { getContractType, type ContractType } from "./types.contract";
 import { SENTINEL_ADDRESS } from "./variables.common";
+
+type AzoriusStrategy = { address: Address; type: ContractType };
 
 // ! @note depreciated for now; don't delete
 export async function getAzoriusModuleInstances(viemClient: PublicClient, network: NetworkConfig) {
@@ -79,17 +81,22 @@ async function getAzoriusProposalsData(
     proposer: Address;
     strategy: Address;
   }[],
+  azoriusStrategies: AzoriusStrategy[],
   deploymentBlockNumber: bigint,
   viemClient: PublicClient,
 ) {
   const allUniqueUsers = new Set<Address>();
   let voteCount = 0;
+
   for (const proposal of proposals) {
     allUniqueUsers.add(proposal.proposer);
-    const strategy = await identifyContract(viemClient, proposal.strategy);
-    if (strategy.isLinearVotingErc20 || strategy.isLinearVotingErc20WithHatsProposalCreation) {
+  }
+
+  for (const strategy of azoriusStrategies) {
+    const strategyType = getContractType(strategy.type);
+    if (strategyType === "ERC20-L" || strategyType === "ERC20-LH") {
       const strategyContract = getContract({
-        address: proposal.strategy,
+        address: strategy.address,
         abi: abis.LinearERC20Voting,
         client: viemClient,
       });
@@ -98,12 +105,12 @@ async function getAzoriusProposalsData(
       });
       for (const vote of votes) {
         allUniqueUsers.add(getAddress(vote.args.voter as Address));
-        voteCount += 1;
       }
+      voteCount += votes.length;
     }
-    if (strategy.isLinearVotingErc721 || strategy.isLinearVotingErc721WithHatsProposalCreation) {
+    if (strategyType === "ERC721-L" || strategyType === "ERC721-LH") {
       const strategyContract = getContract({
-        address: proposal.strategy,
+        address: strategy.address,
         abi: abis.LinearERC721Voting,
         client: viemClient,
       });
@@ -112,8 +119,8 @@ async function getAzoriusProposalsData(
       });
       for (const vote of votes) {
         allUniqueUsers.add(getAddress(vote.args.voter as Address));
-        voteCount += 1;
       }
+      voteCount += votes.length;
     }
   }
   return { uniqueUsers: Array.from(allUniqueUsers), voteCount };
@@ -145,6 +152,7 @@ export async function getAzoriusData(
 
   const { uniqueUsers, voteCount } = await getAzoriusProposalsData(
     azoriusProposals,
+    azoriusStrategies,
     deploymentBlock.blockNumber,
     viemClient,
   );
