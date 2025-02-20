@@ -2,9 +2,18 @@ import { base, optimism, polygon, mainnet, sepolia } from "viem/chains";
 import type { NetworkConfig } from "./types.network";
 import { getFactories } from "./helpers.contract";
 
-export function parseNetworksArg(): string {
+export function parseNetworksArg() {
   const networksArg = process.argv.find((arg) => arg.startsWith("--networks="));
-  return networksArg ? networksArg.split("=")[1] : "all";
+  let networkFilter: undefined | number = undefined;
+  // check if the argument provided is a number, if so parse it and set it to the networkFilter
+  if (networksArg) {
+    const parsedArg = parseInt(networksArg.split("=")[1]);
+    if (!isNaN(parsedArg)) {
+      networkFilter = parsedArg;
+    }
+  }
+
+  return { networksFilter: networksArg ? networksArg.split("=")[1] : "all", networkFilter };
 }
 
 export function filterNetworks(networks: NetworkConfig[], filter: string): NetworkConfig[] {

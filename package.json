@@ -4,7 +4,11 @@
     "report:all": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=all",
     "report:testnets": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=testnets",
     "report:mainnets": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=mainnets",
-    "report:dummy": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=dummy"
+    "report:dummy": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=dummy",
+    "report:mainnets:op": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=10",
+    "report:mainnets:mainnet": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=1",
+    "report:mainnets:polygon": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=137",
+    "report:mainnets:base": "NODE_NO_WARNINGS=1 vite-node src/generateReport --networks=8543"
   },
   "dependencies": {
     "@fractal-framework/fractal-contracts": "^1.4.2",

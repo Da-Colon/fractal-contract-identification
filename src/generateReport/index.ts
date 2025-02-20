@@ -11,11 +11,11 @@ import { getSafeData } from "./helpers.safe";
 import { getContractType } from "./types.contract";
 import { dummyDAOData } from "../ui/mocks.dummyData.daos";
 import { generateDAOReport } from "./helpers.pdf";
-
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 async function main() {
-  const networksFilter = parseNetworksArg();
+  const { networksFilter, networkFilter } = parseNetworksArg();
   const filteredNetworks = filterNetworks(getNetworkConfig(), networksFilter);
-
+  const chainIds = filteredNetworks.map((network) => network.chain.id);
   const logs = new GenerateReportLogs();
 
   const daoData: DAOData[] = networksFilter === "dummy" ? dummyDAOData : [];
@@ -23,7 +23,9 @@ async function main() {
   logs.generateReportStart(filteredNetworks.map((n) => n.chain.name));
   if (networksFilter !== "dummy")
     for (const network of filteredNetworks) {
-      logs.startNetworkSearch(network.chain.name);
+      if (networkFilter && chainIds.includes(networkFilter) && network.chain.id === networkFilter) {
+        continue;
+      }
       // get the client
       const viemClient = createPublicClient({
         chain: network.chain,
@@ -104,6 +106,7 @@ async function main() {
           votesCount,
         });
       }
+      delay(1500);
     }
 
   logs.finishNetworkSearch();
