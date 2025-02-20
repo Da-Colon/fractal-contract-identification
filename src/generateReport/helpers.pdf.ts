@@ -39,8 +39,9 @@ interface ReportData {
 
 // Function to generate a timestamped file name
 function getTimestampedFileName(baseName: string): string {
-  const timestamp = new Date().toISOString().replace(/[-:T]/g, "_").split(".")[0]; // Remove milliseconds
-  return `reports/${baseName}.pdf`;
+  const now = new Date();
+  const formattedTimestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}_${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(now.getSeconds()).padStart(2, "0")}`;
+  return `reports/${formattedTimestamp}_${baseName}.pdf`;
 }
 
 // Function to ensure "reports/" directory exists
@@ -82,9 +83,9 @@ class DocModifier {
 }
 
 // Function to generate the DAO report with better spacing and alignment
-export async function generateDAOReport(reportData: ReportData) {
+export async function generateDAOReport(reportData: ReportData, networkFilter: string) {
   await ensureReportsDirectory();
-  const outputFile = getTimestampedFileName("DAO_Report");
+  const outputFile = getTimestampedFileName(networkFilter);
   const doc = new PDFDocument({ margins: { top: 24, left: 32, right: 32, bottom: 24 } });
   const docModifier = new DocModifier(doc);
 
