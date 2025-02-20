@@ -141,9 +141,18 @@ export async function getAzoriusData(
   }
   const azoriusStrategies: { address: Address; type: ContractType }[] = [];
   azoriusStrategies.push(...(await getAzoriusStrategies(azoriusModuleAddress, viemClient)));
-  const deploymentBlock = await viemClient.getTransaction({
-    hash: deploymentTransactionHash,
-  });
+  const deploymentBlock = await viemClient
+    .getTransaction({
+      hash: deploymentTransactionHash,
+    })
+    .catch(() => {
+      console.error("Error getting deployment block:", {
+        deploymentTransactionHash,
+        azoriusModuleAddress,
+        chainId: viemClient.chain?.id,
+      });
+      return { blockNumber: 0n };
+    });
   const azoriusProposals = await getProposals(
     azoriusModuleAddress,
     deploymentBlock.blockNumber,
