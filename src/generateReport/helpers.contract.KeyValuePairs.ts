@@ -1,6 +1,6 @@
 import { fractalRegistryAbi } from "../abis/FractalRegistry";
 import { abis, addresses } from "@fractal-framework/fractal-contracts";
-import { type Address, type PublicClient, createPublicClient, http } from "viem";
+import { type Address, type PublicClient, createPublicClient, getAddress, http } from "viem";
 import { getSpecificNetworkConfig } from "./helpers.network";
 import { getFractalRegistryContract } from "./helpers.contract";
 
@@ -62,7 +62,7 @@ export async function getDAOAddressFromKeyValuePairsContract(
   });
   const fractalRegistry = getFractalRegistryContract(viemClient.chain!.id);
   const fractalRegistryLogs = await viemClient.getContractEvents({
-    address: fractalRegistry.address,
+    address: getAddress(fractalRegistry.address),
     abi: fractalRegistryAbi,
     eventName: "FractalNameUpdated",
     fromBlock: fractalRegistry.deploymentBlock,
@@ -71,7 +71,7 @@ export async function getDAOAddressFromKeyValuePairsContract(
   const validNameKeys = new Set(["daoName"]);
 
   const latestNameForAddress = new Map<string, { blockNumber: bigint; name: string }>();
-  const uniqueAddresses = new Set<string>();
+  const uniqueAddresses = new Set<Address>();
 
   for (const log of keyValuePairsLogs) {
     const daoAddress = log.args.theAddress;
@@ -94,7 +94,7 @@ export async function getDAOAddressFromKeyValuePairsContract(
   for (const log of fractalRegistryLogs) {
     const daoAddress = log.args.daoAddress;
     if (!daoAddress) continue;
-    uniqueAddresses.add(daoAddress);
+    uniqueAddresses.add(getAddress(daoAddress));
 
     // Only process events that have a key that might contain a name.
 
