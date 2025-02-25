@@ -2,7 +2,6 @@ import type { DAOData } from "@/generateReport/types.common";
 
 export const dummyDAOData: DAOData[] = [
   {
-    timeOfSafeCreation: "2024-05-13T12:49:47Z",
     address: "0x26E445c2bDdf80e2C814af54E4CD6b83Fbc6bFff",
     name: "Test",
     owners: ["0xf26d75b2Fc048F1F6C793aE9F939Fa0946a0E104"],
@@ -35,7 +34,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-05-31T21:32:33Z",
     address: "0x78F04fea2d3BA01639ef927193511dB72d0A4405",
     name: "Test",
     owners: ["0xA32D31CC8877bB7961D84156EE4dADe6872EBE15"],
@@ -68,7 +66,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-06-14T00:46:05Z",
     address: "0x142b8F210eAf06E906AEF00F7b27253a5655Ad2D",
     name: "Futureproof",
     owners: ["0xd5e9d8e4384ed9F54DC991280Fe7fA1d4a99CAA4"],
@@ -101,7 +98,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-07-04T19:29:59Z",
     address: "0xBC4d75485A83D3a749B8d6a1Df7decB45524657E",
     name: "Kaito Test",
     owners: ["0x01eacADF51FF60916157E32A58F640fe854e530F"],
@@ -134,7 +130,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-05T03:42:17Z",
     address: "0x9551D9ae48674f6768361645A790590305f86209",
     name: "Rhino Crew",
     owners: ["0x4cC93EBB24Bc1660d5b41Ff9eC8cA480a0A94C36"],
@@ -170,7 +165,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 2,
   },
   {
-    timeOfSafeCreation: "2024-09-23T12:25:27Z",
     address: "0x0BcC8861d36B610f19492C8E512Ebb9E99BB7654",
     name: "Battle of the Beers",
     owners: ["0x2884b7Bf17Ca966bB2e4099bf384734a48885Df0"],
@@ -206,7 +200,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 3,
   },
   {
-    timeOfSafeCreation: "2024-09-24T09:43:59Z",
     address: "0x5a85e7e223577A8C01C9eF27f6FE8643830D67d6",
     name: "Test Battle of the Beers",
     owners: ["0x2884b7Bf17Ca966bB2e4099bf384734a48885Df0"],
@@ -242,7 +235,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 2,
   },
   {
-    timeOfSafeCreation: "2024-11-05T21:30:51Z",
     address: "0x9EF2C4aA4b25BeB130356B4fCF62Db4c0D4B2557",
     name: "Test Myosin",
     owners: ["0x0B8Eee99b1804F5a5c851C37dACc5CD3b623D12A"],
@@ -275,7 +267,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x374D5a17D2433415C48C735A493F0523DaB99041",
     name: "Myosin.xyz",
     owners: [
@@ -317,7 +308,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 5,
   },
   {
-    timeOfSafeCreation: "2025-01-15T21:26:19Z",
     address: "0x505EF78E4ffB433F6FBFBC98E9716c36f7296894",
     name: "My Great DAO",
     owners: ["0x0fe11Cf358Fe883069ed25e82168a12ED8f6076e"],
@@ -350,7 +340,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2025-02-03T15:42:53Z",
     address: "0xF222823699a84A6Dcd47A1A860554A5B9DAaaf47",
     name: "Based DAO",
     owners: ["0x1289E52A19f633A1bE26a42235Cc5b9dfDE486CC"],
@@ -383,7 +372,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2025-02-05T18:31:55Z",
     address: "0xbAd01C227F85f789210DE6c7B87E895f1E55471C",
     name: "Vanilla DAO",
     owners: ["0xa88B37A1090E9698e7a4DB71A51EDd3033577d10"],
@@ -416,7 +404,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2025-02-17T21:36:19Z",
     address: "0xF8116E07BEF52E227EFF7e0C960336991e7769e7",
     name: "Base DAO",
     owners: ["0xe03850fb749fD6d0173Ff350B96558C09d5101c3"],
@@ -449,7 +436,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0xA240da76f7a98338F7Fd4828E65ABae3F7483635",
     name: "Bounty Treasury",
     owners: [
@@ -487,7 +473,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x97095c46377f1790A5579e87A0dB5144b411FFd5",
     name: "Staking Treasury",
     owners: [
@@ -525,7 +510,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x0c14aA2d34C0E13Bbe441963e4de2EeAef4abeD2",
     name: "Onboarding Treasury",
     owners: [
@@ -567,7 +551,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 16,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x67A651dE96c166789e8F008035cc3C0e34Cfec02",
     name: "Guild Treasury",
     owners: [
@@ -605,7 +588,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x85Bf3156c1a9336De889Df4B84aD4d26E15Ff835",
     name: "Gaming Guild",
     owners: [
@@ -643,7 +625,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0xF853e54a99925A05eeEb5767eD4c9fc6A82003C7",
     name: "Community Guild",
     owners: [
@@ -681,7 +662,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x5F45E3715B07a8c58897CC8AfaA0B5b9dE223E1B",
     name: "Podcast Guild",
     owners: [
@@ -719,7 +699,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x48dEC83a5Aa719d1E7F6B9ce3f91Ce6295859013",
     name: "Product Guild",
     owners: [
@@ -757,7 +736,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x237Dfa2223D34674AfD3c8D1200bCe2919f97417",
     name: "Content Guild",
     owners: [
@@ -796,7 +774,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x856fDfA35556865AF5cb8b8dCb82855D2F4B4866",
     name: "Governance Guild",
     owners: [
@@ -834,7 +811,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x895a9C888B2059F57ac7eDBd59337F91a3F3f05F",
     name: "Design Guild",
     owners: [
@@ -873,7 +849,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0xf9a320200f72AEf5df3B6E6763dB749c6d4a5eA5",
     name: "Growth Guild",
     owners: [
@@ -911,7 +886,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x2Cb0d618C8E02924A8769730Fb3E5D3759279194",
     name: "PR & Partnerships Guild",
     owners: [
@@ -950,7 +924,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x00f8959d5e12215ff63E100346D25293e71EA0D3",
     name: "Innovation Guild",
     owners: [
@@ -989,7 +962,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0x529a08DCa73C533aEb67897E85b682e0152FD845",
     name: "BD Guild",
     owners: [
@@ -1027,7 +999,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0xB6E0E47a06522eE04367a6A6E59bc6539Af97122",
     name: "Myosin Arcade Treasury",
     owners: [
@@ -1065,7 +1036,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-04T20:49:03Z",
     address: "0xcb51A67Fa4919F1CB019B2A3eb7654b20C16ADF3",
     name: "Product Treasury",
     owners: [
@@ -1103,7 +1073,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-05-14T08:44:29Z",
     address: "0xb6810E65eE747d03940CA712673A8f190af1ee1d",
     name: "Test SAFE",
     owners: ["0xF49a269d3cADb5a561C85930d430a30D836e2669"],
@@ -1136,7 +1105,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-09-20T20:03:23Z",
     address: "0xf1EE07109217769345Cd771789769ef2cB0d08E4",
     name: "Boost Test",
     owners: ["0xfeC6837e96Faa1596aB85977C163975305c7709c"],
@@ -1172,7 +1140,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 2,
   },
   {
-    timeOfSafeCreation: "2024-10-22T21:50:39Z",
     address: "0x8Ba174E2f943657E193744883Fe72CE4c01b33C0",
     name: "forest",
     owners: ["0x1019236722517506732D92DAc0f7b9B4ed993D8d"],
@@ -1205,7 +1172,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2023-06-21T03:21:17Z",
     address: "0xA312A22ac5E99C7C9A5bcA3cCeD4D9412B1c4123",
     name: "Pizza DAO",
     owners: ["0x9DBdE6057aD59cb07fC83170F7D1f06DD4aFEE93"],
@@ -1238,7 +1204,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2023-06-21T03:24:09Z",
     address: "0x3983bc13CFb4C8ca7a16790021Be8E1f5a84286d",
     name: "Herbig Multisig",
     owners: ["0x8E2695650D09FD940516d6e050D0Ba87d8deF032"],
@@ -1271,7 +1236,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2023-06-23T20:54:06Z",
     address: "0x1D10C27184019e49ac673f421fae6fcE09DD8252",
     name: "Token Test",
     owners: ["0xb89a55de286B27a7C51c24c3Ef3149495D002Fe4"],
@@ -1304,7 +1268,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2023-06-23T21:31:23Z",
     address: "0x5270e796B5E367484bABE9e83645a321426E34F9",
     name: "Token Test",
     owners: ["0xA5127d4302857f9472CcC28Ed68DE47eeFAc01E1"],
@@ -1337,7 +1300,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2023-08-21T17:32:01Z",
     address: "0x6CE2c19D36f71F8870DCe232c5715977feF9f51d",
     name: "Test Safe",
     owners: ["0x8E2695650D09FD940516d6e050D0Ba87d8deF032"],
@@ -1370,7 +1332,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-03-29T17:53:20Z",
     address: "0xa4cF2B2675fCA419dEEF58c6cbe81942B63472DF",
     name: "AZ polyDAO",
     owners: ["0xF01E198662C8a81B9AAfFb2CE5aa0283AF11F5aB"],
@@ -1403,7 +1364,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-05-06T22:43:38Z",
     address: "0x07928871059730Fd70BB44AD9F9f5aC225C52C73",
     name: "Test",
     owners: [
@@ -1439,7 +1399,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-06-21T09:35:55Z",
     address: "0x12EF6Da06209F74725049F1DbbA6C961E7bb36CC",
     name: "dilz",
     owners: ["0xdf4bf994C3097d07538464bfD75280aC861EAF3c"],
@@ -1472,7 +1431,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-08-27T13:23:08Z",
     address: "0x7106c97c268d85fa829392D93ab7FC9aE2cAd867",
     name: "Holomidal",
     owners: ["0xb6C0Af3f10F6AD307a5205f741ec68D02c6Fa548"],
@@ -1505,7 +1463,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-11-14T20:11:21Z",
     address: "0x40943eD3cbC034D3752FDE05bb71E8F64f27c308",
     name: "The Coin",
     owners: ["0x86c17354B7Af70CD2AaBe8a7020d6dD58644272B"],
@@ -1538,7 +1495,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-12-30T00:25:08Z",
     address: "0xa2281bF431A904c5fd1E0020bCB3412412911A91",
     name: "test dao",
     owners: ["0x7599C84f0E1891c351fFbe6797864a06bD9d6eD5"],
@@ -1571,7 +1527,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2025-02-03T16:23:16Z",
     address: "0xbfa0A6211545a6Fa991b2Cf5C8CE11c41400937A",
     name: "Polygon DAO",
     owners: ["0x8E6F1f26173ea77e2EA666F9f6333e3881596C52"],
@@ -1604,7 +1559,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2025-02-06T00:15:41Z",
     address: "0xC862e91C6aE533a9a3D48adb120296103D015416",
     name: "Polygon DAO",
     owners: ["0x324f18afc0897dbD96B6ddF408C99C5542B37Ede"],
@@ -1637,7 +1591,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2025-02-15T03:34:43Z",
     address: "0x5AB98e1D78375ddC322c0DbDC540A896ad06AB0E",
     name: "Pirate Fleet DAO",
     owners: ["0x22D9DF1A44275956927b4fFBA4371840C858BAE6"],
@@ -1670,7 +1623,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2023-06-12T15:49:23Z",
     address: "0xdD6CeFA62239272f1eDf755ba6471eacb7DF2Fa5",
     name: "AwakeVC",
     owners: [
@@ -1711,7 +1663,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 4,
   },
   {
-    timeOfSafeCreation: "2022-02-07T15:46:12Z",
     address: "0xD26c85D435F02DaB8B220cd4D2d398f6f646e235",
     name: "Decent DAO",
     owners: [
@@ -1754,7 +1705,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 177,
   },
   {
-    timeOfSafeCreation: "2023-06-16T14:46:23Z",
     address: "0x574f4Bc0ccEbeF9F5B946A13FF16f931c16De22B",
     name: "Fractal",
     owners: [
@@ -1790,7 +1740,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2023-06-20T01:14:23Z",
     address: "0x6BBDF95CAb8397b4cd1EB4d7A7f706365F077F61",
     name: "Northwind Ventures Corp",
     owners: [
@@ -1831,7 +1780,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 7,
   },
   {
-    timeOfSafeCreation: "2023-06-21T13:24:35Z",
     address: "0x9494B69Fa25d0f214F6A3878848Ce18eF57dB86a",
     name: "Northwind the Yacht LLC",
     owners: [
@@ -1867,7 +1815,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2023-06-21T13:25:23Z",
     address: "0xD02c87766b2a8c34e15e5a3eF3950DdD58d27c2E",
     name: "RtNW Show LLC",
     owners: [
@@ -1903,7 +1850,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2023-06-21T13:26:59Z",
     address: "0x42dE6e6e7dbD18e01554aea345C6cCE756bD0F08",
     name: "Northwind Ice & Water Inc",
     owners: [
@@ -1939,7 +1885,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2023-06-21T13:27:47Z",
     address: "0x596cD2969B0621D5eCfA7C77aAf5726Cb421b8ea",
     name: "Northwind Wine & Spirits Inc",
     owners: [
@@ -1975,7 +1920,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2023-06-21T13:30:23Z",
     address: "0xBC14bEe869d0FA6a0091939e0C7B5931BF6E2dFB",
     name: "Northwind Fashions Inc",
     owners: [
@@ -2011,7 +1955,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2023-11-02T14:00:11Z",
     address: "0xdD61Bbc291F7DC563545906dA13353afCfB54544",
     name: "Multisig-Snapshot-0x",
     owners: ["0x06E1bE97502c99500A8E77fBc8089F414033eb59"],
@@ -2044,7 +1987,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2023-12-14T18:43:11Z",
     address: "0xB63ae0cbC7b0810e42FB2AcBAc0902e8dCd257A8",
     name: "Decent DAO",
     owners: ["0x000000000000000000000000000000000f2aC7a1"],
@@ -2077,7 +2019,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2023-12-16T03:05:59Z",
     address: "0xB98d45F9021D71E6Fc30b43FD37FB3b1Bf12c064",
     name: "Decent DAO",
     owners: ["0x000000000000000000000000000000000f2aC7a1"],
@@ -2110,7 +2051,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-01-16T20:00:23Z",
     address: "0x36bD3044ab68f600f6d3e081056F34f2a58432c4",
     name: "Shutter DAO",
     owners: ["0xAA6BfA174d2f803b517026E93DBBEc1eBa26258e"],
@@ -2143,7 +2083,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-02-21T20:56:47Z",
     address: "0xEC56e0870F19e3b1a6b051f679cf365E67f7f9Fe",
     name: "Sarcophagus",
     owners: [
@@ -2188,7 +2127,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 91,
   },
   {
-    timeOfSafeCreation: "2024-03-28T18:14:11Z",
     address: "0x0f9A68C48f10564bBf6D1E4D06328c27D9647F21",
     name: "Test Integration",
     owners: [
@@ -2228,7 +2166,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 4,
   },
   {
-    timeOfSafeCreation: "2024-03-28T20:27:35Z",
     address: "0xDd452BA265dFed7dC64492C61642aBcDbd969797",
     name: "SubDAO test",
     owners: [
@@ -2267,7 +2204,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 2,
   },
   {
-    timeOfSafeCreation: "2024-04-12T11:50:23Z",
     address: "0x4CAd5a83D4f3FA8233E1beE010D6313f74afF026",
     name: "SubDAO test2",
     owners: [
@@ -2306,7 +2242,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 2,
   },
   {
-    timeOfSafeCreation: "2024-04-12T12:20:23Z",
     address: "0x476f235a78CE72C6E7E9B186391c6628A96FEA7D",
     name: "Kleros Test",
     owners: [
@@ -2346,7 +2281,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 2,
   },
   {
-    timeOfSafeCreation: "2024-04-12T12:26:47Z",
     address: "0x8bA7a5cf78fECc9F85fDD868b800182c50f0d970",
     name: "SubDAO test",
     owners: [
@@ -2387,7 +2321,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 3,
   },
   {
-    timeOfSafeCreation: "2024-04-16T15:36:11Z",
     address: "0xDBC4Ae5c0fdC921ee08B44031D6DA081De1d6485",
     name: "test snapshot space link",
     owners: ["0xf26d75b2Fc048F1F6C793aE9F939Fa0946a0E104"],
@@ -2423,7 +2356,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 2,
   },
   {
-    timeOfSafeCreation: "2024-05-15T16:05:23Z",
     address: "0xd7EaC04Cf0c363A5C8504Bd4C786dEE7Df11ebD3",
     name: "ATEM",
     owners: ["0xf26d75b2Fc048F1F6C793aE9F939Fa0946a0E104"],
@@ -2459,7 +2391,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 2,
   },
   {
-    timeOfSafeCreation: "2024-05-15T16:12:23Z",
     address: "0x77aCCF447C497E37EE1351D0959D1A110D2f8235",
     name: "test",
     owners: ["0xf26d75b2Fc048F1F6C793aE9F939Fa0946a0E104"],
@@ -2492,7 +2423,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-05-20T18:46:23Z",
     address: "0x0099Df6AD8B63D2D8B9301aA8f2A3F764b6f9C86",
     name: "testsendassets",
     owners: ["0xf26d75b2Fc048F1F6C793aE9F939Fa0946a0E104"],
@@ -2525,7 +2455,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-06-05T04:09:23Z",
     address: "0xf3c054CBF103351FECa36b300E56af36b44C3AC5",
     name: "테스트",
     owners: ["0x99F8504B0bC8B9bDaDc9bE99c8F103091fb3eD01"],
@@ -2558,7 +2487,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-07-25T18:28:35Z",
     address: "0x8e278458B9446B0392F32C75676970893F3AB6Be",
     name: "Org roles",
     owners: ["0xf26d75b2Fc048F1F6C793aE9F939Fa0946a0E104"],
@@ -2591,7 +2519,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2024-08-14T18:23:59Z",
     address: "0xb629aA2FA30cDb83f3F5808dDE3F601818a682dd",
     name: "Token Trice 2241",
     owners: ["0x85543b7024393AE98da26d9136002976D0cF4158"],
@@ -2624,7 +2551,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-11-15T18:44:47Z",
     address: "0xB14AC30AA97057e2A934c47BDc45171335B91Bd8",
     name: "VANTA DAO",
     owners: ["0x14b60E8608b5cb3CD17311ACAEA1b05A4F4E61Be"],
@@ -2657,7 +2583,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-11-20T20:23:23Z",
     address: "0xfC4eB2A6ECc30cc86a24823F9821eFF8b9a140Bb",
     name: "New Safe",
     owners: ["0xDB131c83b44A055750b49107031AA77B633148aB"],
@@ -2693,7 +2618,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 2,
   },
   {
-    timeOfSafeCreation: "2024-12-16T19:19:11Z",
     address: "0x80a8CCb2de8c793D36E4acD4715Ebb91aa5038D1",
     name: "edenic",
     owners: ["0x16755D46cf678588dF535F2991E4c53a4Dddc437"],
@@ -2726,7 +2650,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2025-01-28T17:11:11Z",
     address: "0x50E1ACD0FDb16189B7910675FBd410c466ae31B8",
     name: "Operations",
     owners: ["0x0784FbA6150a1334365E6FC27bb37c6370489cBA"],
@@ -2759,7 +2682,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2025-02-04T12:38:11Z",
     address: "0xa89Bff4576dE525570AbC420D44106eF97a07016",
     name: "Never Stop Community",
     owners: ["0xC88599F6bD1Bb70c43478A6CA01B0f2F6A8127D4"],
@@ -2792,7 +2714,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 1,
   },
   {
-    timeOfSafeCreation: "2025-02-06T22:50:35Z",
     address: "0x16B9e0F718553E3a82438831a34Ef0faC3a20E70",
     name: "TEST3",
     owners: ["0x36Dfcc60B74B9d15881d8A4a622bAe6B85907C81"],
@@ -2825,7 +2746,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2025-02-10T22:29:59Z",
     address: "0x72FbB1b7856d2D1c07997E0a1a2201ECED03B04c",
     name: "Nouns Amigos",
     owners: ["0x2C9DCd1f74ef3819F89f57F48694d88BCf665154"],
@@ -2858,7 +2778,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2025-02-19T17:20:47Z",
     address: "0xbaf4bdcdE594871A9e40207EBEA7dA3Bc3e83aE0",
     name: "Big Blue DAO",
     owners: ["0xcE217675E8f327e0aa7b163F480978DB3b322d9D"],
@@ -2891,7 +2810,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 0,
   },
   {
-    timeOfSafeCreation: "2024-02-19T10:52:11Z",
     address: "0x0Be42Bff08C213f9046f7f3F7F0D3d1965CDe097",
     name: "Personal Savings",
     owners: [
@@ -2930,7 +2848,6 @@ export const dummyDAOData: DAOData[] = [
     votesCount: 10,
   },
   {
-    timeOfSafeCreation: "2024-06-28T14:17:11Z",
     address: "0xBF1a121A3ddd82b34f15aaE3Fa1F53E4D29dBF7B",
     name: "0x36 SubDAO",
     owners: ["0x0000000000000000000000000000000000000002"],

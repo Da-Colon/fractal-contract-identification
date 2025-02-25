@@ -1,26 +1,84 @@
 import type SafeApiKit from "@safe-global/api-kit";
 import { identifyContract } from "./helpers.contract";
-import { getAddress, type Address, type Hex, type PublicClient } from "viem";
+import { getAddress, zeroAddress, type Address, type PublicClient } from "viem";
 import type { ContractType } from "./types.contract";
+import GnosisSafeL2Abi from "../abis/GnosisSafeL2Abi";
+import { SENTINEL_ADDRESS } from "./variables.common";
 
-export async function getSafeData(
-  daoAddress: Address,
-  safeClient: SafeApiKit,
-  viemClient: PublicClient,
-) {
-  const safeInfo = await safeClient
-    .getSafeInfo(daoAddress)
-    .catch(() => safeClient.getSafeInfo(daoAddress));
-  const safeCreationInfo = await safeClient
-    .getSafeCreationInfo(daoAddress)
-    .catch(() => safeClient.getSafeCreationInfo(daoAddress));
+function getFactoryDeploymentBlockNumber(chainId: number) {
+  switch (chainId) {
+    case 1:
+      return 12504126n;
+    case 11155111:
+      return 2086864n;
+    case 10:
+      return 3936933n;
+    case 137:
+      return 14370881n;
+    case 8453:
+      return 2156359n;
+    default:
+      throw new Error(`Unsupported chain ID: ${chainId}`);
+  }
+}
+export async function getSafeData(daoAddress: Address, viemClient: PublicClient) {
+  const [nonce, threshold, modules, owners, version] = await viemClient.multicall({
+    contracts: [
+      {
+        abi: GnosisSafeL2Abi,
+        address: daoAddress,
+        functionName: "nonce",
+      },
+      {
+        abi: GnosisSafeL2Abi,
+        address: daoAddress,
+        functionName: "getThreshold",
+      },
+      {
+        abi: GnosisSafeL2Abi,
+        address: daoAddress,
+        functionName: "getModulesPaginated",
+        args: [SENTINEL_ADDRESS, 10n],
+      },
+      {
+        abi: GnosisSafeL2Abi,
+        address: daoAddress,
+        functionName: "getOwners",
+      },
+      {
+        abi: GnosisSafeL2Abi,
+        address: daoAddress,
+        functionName: "VERSION",
+      },
+    ],
+    allowFailure: false,
+  });
 
-  const modules = safeInfo.modules;
-  const owners = safeInfo.owners;
+  const GUARD_STORAGE_SLOT = "0x3a";
+  const guardStorageValue = await viemClient.getStorageAt({
+    address: daoAddress,
+    slot: GUARD_STORAGE_SLOT,
+  });
+
+  const safeInfo = {
+    address: daoAddress,
+    nonce: Number(nonce ?? 0),
+    threshold: Number(threshold ?? 0),
+    owners: [...owners] as Address[],
+    modules: [...modules[0], modules[1]] as Address[],
+    fallbackHandler: zeroAddress,
+    guard: guardStorageValue ? getAddress(`0x${guardStorageValue.slice(-40)}`) : zeroAddress,
+    version,
+    singleton: zeroAddress,
+  };
+
+  const deploymentBlockNumber = getFactoryDeploymentBlockNumber(viemClient.chain!.id) || 0n;
+  const safeInfoModules = safeInfo.modules;
+  const safeInfoOwners = [...safeInfo.owners] as Address[];
   const guard = safeInfo.guard;
 
   const decentModules: { address: Address; type: ContractType }[] = [];
-  for (const module of modules) {
+  for (const module of safeInfoModules) {
     const type = await identifyContract(viemClient, module);
     if (type) {
       decentModules.push({
@@ -29,12 +87,12 @@ export async function getSafeData(
       });
     }
   }
-  const [azoriusModule] = decentModules.filter((module) => module.type.isModuleAzorius);
-  if (!azoriusModule) {
+
+  const [azoriusModule] = decentModules.filter((m) => m.type.isModuleAzorius);
+  if (!!azoriusModule) {
     return {
-      timeOfSafeCreation: safeCreationInfo.created,
-      deploymentTransactionHash: safeCreationInfo.transactionHash as Hex,
-      owners,
+      deploymentBlockNumber: deploymentBlockNumber,
+      owners: safeInfoOwners,
       guard,
       modules: decentModules,
       multisigTransactions: [],
@@ -43,44 +101,44 @@ export async function getSafeData(
     };
   }
 
-  const multisigTransactions = await safeClient
-    .getMultisigTransactions(daoAddress)
-    .catch(() => safeClient.getMultisigTransactions(daoAddress));
-  const pendingTransactions = await safeClient
-    .getPendingTransactions(daoAddress)
-    .catch(() => safeClient.getPendingTransactions(daoAddress));
-  // combine and filter out any duplicate transactions
-  const allTransactions = [...multisigTransactions.results, ...pendingTransactions.results].filter(
-    (tx, index, self) => self.findIndex((t) => t.transactionHash === tx.transactionHash) === index,
-  );
-  const allProposals = allTransactions.map((tx, index) => {
-    return {
-      proposalId: BigInt(index + 1),
-    };
-  });
+  // const multisigTransactions = await safeClient
+  //   .getMultisigTransactions(daoAddress)
+  //   .catch(() => safeClient.getMultisigTransactions(daoAddress));
+  // const pendingTransactions = await safeClient
+  //   .getPendingTransactions(daoAddress)
+  //   .catch(() => safeClient.getPendingTransactions(daoAddress));
+  // const allTransactions = [...multisigTransactions.results, ...pendingTransactions.results].filter(
+  //   (tx, index, self) => self.findIndex((t) => t.transactionHash === tx.transactionHash) === index,
+  // );
+  // const allProposals = allTransactions.map((_, index) => ({
+  //   proposalId: BigInt(index + 1),
+  // }));
 
-  const allUniqueUsers = new Set<Address>();
-  let votesCount = 0;
-  for (const proposal of allTransactions) {
-    if (proposal?.proposer) {
-      allUniqueUsers.add(proposal.proposer);
-    }
-    if (proposal?.confirmations) {
-      for (const confirmation of proposal.confirmations) {
-        allUniqueUsers.add(getAddress(confirmation.owner));
-        votesCount += 1;
-      }
-    }
-  }
+  // const allUniqueUsers = new Set<Address>();
+  // let votesCount = 0;
+  // for (const proposal of allTransactions) {
+  //   if (proposal?.proposer) {
+  //     allUniqueUsers.add(proposal.proposer);
+  //   }
+  //   if (proposal?.confirmations) {
+  //     for (const confirmation of proposal.confirmations) {
+  //       allUniqueUsers.add(getAddress(confirmation.owner));
+  //       votesCount++;
+  //     }
+  //   }
+  // }
 
   return {
-    timeOfSafeCreation: safeCreationInfo.created,
-    deploymentTransactionHash: safeCreationInfo.transactionHash as Hex,
-    owners,
+    deploymentBlockNumber,
+    owners: safeInfoOwners,
     guard,
     modules: decentModules,
-    multisigTransactions: allProposals,
-    uniqueMultisigUsers: Array.from(allUniqueUsers),
-    multisigVotesCount: votesCount,
+    // multisigTransactions: allProposals,
+    multisigTransactions: [] as any,
+    // multisigVotes: allTransactions,
+    // uniqueMultisigUsers: Array.from(allUniqueUsers),
+    uniqueMultisigUsers: [] as Address[],
+    // multisigVotesCount: votesCount,
+    multisigVotesCount: [] as any,
   };
 }

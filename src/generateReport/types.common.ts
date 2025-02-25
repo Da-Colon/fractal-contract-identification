@@ -2,7 +2,6 @@ import type { Address } from "viem";
 
 export interface DAOData {
   address: Address;
-  timeOfSafeCreation: string;
   name: string | null;
   governanceType: "Azorius" | "Multisig";
   owners: Address[];

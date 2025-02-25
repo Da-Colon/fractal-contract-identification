@@ -2,7 +2,6 @@ import { createPublicClient, http } from "viem";
 import { filterNetworks, getNetworkConfig, parseNetworksArg } from "./helpers.network";
 import { getTokenData } from "./helpers.token";
 import { GenerateReportLogs } from "../logging/LogMessage";
-import SafeApiKit from "@safe-global/api-kit";
 import type { DAOData } from "./types.common";
 import { formatDAOData } from "./helpers.common";
 import { getDAOAddressFromKeyValuePairsContract } from "./helpers.contract.KeyValuePairs";
@@ -15,7 +14,6 @@ const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 async function main() {
   const networksFilter = parseNetworksArg();
   const filteredNetworks = filterNetworks(getNetworkConfig(), networksFilter);
-  const chainIds = filteredNetworks.map((network) => network.chain.id);
   const logs = new GenerateReportLogs();
 
   const daoData: DAOData[] = networksFilter === "dummy" ? dummyDAOData : [];
@@ -29,9 +27,6 @@ async function main() {
         transport: http(`${network.alchemyUrl}`),
       });
 
-      const safeClient = new SafeApiKit({
-        chainId: BigInt(network.chain.id),
-      });
       await delay(500);
 
       const daoKeyValueDatas = await getDAOAddressFromKeyValuePairsContract(viemClient);
@@ -44,20 +39,19 @@ async function main() {
           daoKeyValueData.daoAddress,
         );
         const {
-          timeOfSafeCreation,
-          deploymentTransactionHash,
+          deploymentBlockNumber,
           owners,
           guard,
           modules,
           multisigTransactions,
           uniqueMultisigUsers,
           multisigVotesCount,
-        } = await getSafeData(daoKeyValueData.daoAddress, safeClient, viemClient);
+        } = await getSafeData(daoKeyValueData.daoAddress, viemClient);
         const [azoriusModule] = modules.filter((module) => module.type.isModuleAzorius);
 
         const governanceType = azoriusModule ? "Azorius" : "Multisig";
         const { strategies, azoriusProposals, uniqueAzoriusUsers, azoriusVotesCount } =
-          await getAzoriusData(deploymentTransactionHash, azoriusModule?.address, viemClient);
+          await getAzoriusData(deploymentBlockNumber, azoriusModule?.address, viemClient);
 
         const { tokensData, totalTokenBalance, totalTokenBalanceFrmt } = await getTokenData(
           daoKeyValueData.daoAddress,
@@ -81,7 +75,6 @@ async function main() {
             getContractType(strategy.type) as "ERC20-L" | "ERC20-LH" | "ERC721-L" | "ERC721-LH",
         );
         daoData.push({
-          timeOfSafeCreation,
           address: daoKeyValueData.daoAddress,
           name: daoKeyValueData.daoName,
           owners,
