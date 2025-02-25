@@ -26,10 +26,10 @@ ${networks.map((name) => `- ${name}`).join("\n")}
 ${this.formatTitle(`Searching Network: ${networkName}`)}
 `);
   }
-  updateNetworkSearch(label: string, data: string | null | undefined, networkName: string): void {
-    const progress = this.progressMap.get(networkName) ?? 1;
+  updateNetworkSearch(label: string, data: string | null | undefined, progressKey: string): void {
+    const progress = this.progressMap.get(progressKey) ?? 1;
     console.log(`\n${"⭐️".repeat(progress)} ${ansis.blue(label)}: ${ansis.green(data ?? "--")}`);
-    this.progressMap.set(networkName, progress + 1);
+    this.progressMap.set(progressKey, progress + 1);
   }
 
   reportTitle(label: string): void {

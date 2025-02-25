@@ -34,8 +34,8 @@ async function main() {
 
       for (const daoKeyValueData of daoKeyValueDatas) {
         logs.updateNetworkSearch(
-          "Gathering DAO Info",
-          daoKeyValueData.daoName,
+          "Gathering Information for:",
+          daoKeyValueData.daoAddress,
           daoKeyValueData.daoAddress,
         );
         const {
@@ -58,13 +58,6 @@ async function main() {
           viemClient,
         );
 
-        logs.updateNetworkSearch("Governance Type", governanceType, daoKeyValueData.daoAddress);
-        logs.updateNetworkSearch(
-          "DAO Treasury holds",
-          totalTokenBalanceFrmt,
-          daoKeyValueData.daoAddress,
-        );
-
         const proposalCount = !!azoriusModule
           ? azoriusProposals.length
           : multisigTransactions.length;
@@ -74,6 +67,12 @@ async function main() {
           (strategy) =>
             getContractType(strategy.type) as "ERC20-L" | "ERC20-LH" | "ERC721-L" | "ERC721-LH",
         );
+
+        console.table({
+          "DAO Address": daoKeyValueData.daoAddress,
+          "DAO Name": daoKeyValueData.daoName,
+          "Treasury Balance": totalTokenBalanceFrmt,
+        });
         daoData.push({
           address: daoKeyValueData.daoAddress,
           name: daoKeyValueData.daoName,
