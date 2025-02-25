@@ -1,4 +1,3 @@
-import type SafeApiKit from "@safe-global/api-kit";
 import { identifyContract } from "./helpers.contract";
 import { getAddress, zeroAddress, type Address, type PublicClient } from "viem";
 import type { ContractType } from "./types.contract";
@@ -142,3 +141,37 @@ export async function getSafeData(daoAddress: Address, viemClient: PublicClient)
     multisigVotesCount: [] as any,
   };
 }
+
+// const deployment = safeDeployments.getProxyFactoryDeployment({
+//   network: viemClient.chain!.id.toString(),
+//   version: safeInfo.version,
+// });
+// const proxyFactoryAddress = getAddress(deployment?.defaultAddress!);
+// const chunkSize = 2000n;
+// let fromBlock = getFactoryDeploymentBlockNumber(viemClient.chain!.id) || 0n;
+// const latestBlock = await viemClient.getBlockNumber();
+// let creationLog: any = null;
+
+// while (fromBlock <= latestBlock) {
+//   let toBlock = fromBlock + chunkSize;
+//   if (toBlock > latestBlock) {
+//     toBlock = latestBlock;
+//   }
+//   const creationLogs = await viemClient.getContractEvents({
+//     abi: GnosisSafeProxyFactoryAbi,
+//     address: proxyFactoryAddress,
+//     eventName: "ProxyCreation",
+//     args: [daoAddress],
+//     fromBlock,
+//   });
+//   if (creationLogs.length > 0) {
+//     creationLog = creationLogs[0];
+//     break;
+//   }
+//   fromBlock = toBlock + 1n;
+// }
+
+// let deploymentBlockNumber: bigint = 0n;
+// if (creationLog) {
+//   deploymentBlockNumber = creationLog.blockNumber;
+// }
