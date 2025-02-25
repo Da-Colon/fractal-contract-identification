@@ -138,7 +138,7 @@ export async function getSafeData(daoAddress: Address, viemClient: PublicClient)
     // uniqueMultisigUsers: Array.from(allUniqueUsers),
     uniqueMultisigUsers: [] as Address[],
     // multisigVotesCount: votesCount,
-    multisigVotesCount: [] as any,
+    multisigVotesCount: 0,
   };
 }
 

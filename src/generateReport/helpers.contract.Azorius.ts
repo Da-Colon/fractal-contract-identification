@@ -1,12 +1,5 @@
 import { abis, addresses } from "@fractal-framework/fractal-contracts";
-import {
-  type PublicClient,
-  type Address,
-  zeroAddress,
-  getAddress,
-  type Hex,
-  getContract,
-} from "viem";
+import { type PublicClient, type Address, zeroAddress, getAddress, getContract } from "viem";
 import { getInstancesForMasterCopy, identifyContract } from "./helpers.contract";
 import type { NetworkConfig } from "./types.network";
 import { getContractType, type ContractType } from "./types.contract";
